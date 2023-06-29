@@ -1,9 +1,9 @@
 {% set version = "1.7.4" %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
-{% set faiss_proc_type = "cuda" if cuda_compiler_version != "None" else "cpu" %}
 {% if cuda_compiler_version is undefined %}
     {% set cuda_compiler_version = "None" %}
 {% endif %}
+{% set faiss_proc_type = "cuda" if cuda_compiler_version != "None" else "cpu" %}
 # headers for upstream-folders 'faiss/*.h', 'faiss/{impl,invlists,utils}/*.h',
 # see https://github.com/facebookresearch/faiss/blob/v{{ version }}/faiss/CMakeLists.txt;
 # gpu adds headers in 'faiss/gpu/*.h', 'faiss/gpu/{impl,utils}/*.(cu)?h'.
