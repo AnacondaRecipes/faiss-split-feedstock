@@ -160,6 +160,12 @@ outputs:
         - llvm-openmp             # [osx and arm64]
         - intel-openmp            # [linux or win or (osx and x86_64)]
         - libgomp                 # [linux]
+      run:
+        - openblas                # [osx and arm64]
+        - mkl 2023.1.0            # [linux or win or (osx and x86_64)]
+        - llvm-openmp             # [osx and arm64]
+        - intel-openmp            # [linux or win or (osx and x86_64)]
+        - libgomp                 # [linux]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
