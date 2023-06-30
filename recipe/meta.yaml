@@ -158,15 +158,15 @@ outputs:
         # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
         # libgomp is also required for linux-64 alongside intel-omp.
         # llvm-openmp is required only for osx-arm64
-        - openblas                # [(osx and arm64) or linux-ppc64le or linux-s390x]
+        - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
-        - llvm-openmp             # [osx and arm64]
+        - llvm-openmp  14.0.6           # [osx and arm64]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run:
         # Run dependencies follow the same logic as above.
-        - libopenblas             # [(osx and arm64) or linux-ppc64le or linux-s390x]
+        - libopenblas 0.3.21         # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
         - llvm-openmp             # [osx and arm64]
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
@@ -218,9 +218,9 @@ outputs:
         # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
         # libgomp is also required for linux-64 alongside intel-omp.
         # llvm-openmp is required only for osx-arm64
-        - openblas                # [(osx and arm64) or linux-ppc64le or linux-s390x]
+        - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
-        - llvm-openmp             # [osx and arm64]
+        - llvm-openmp  14.0.6           # [osx and arm64]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
