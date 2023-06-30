@@ -155,17 +155,22 @@ outputs:
         - ninja
       host:
         - python
-        - openblas                # [osx and arm64]
-        - mkl 2023.1.0            # [linux or win or (osx and x86_64)]
-        - llvm-openmp             # [osx and arm64]
-        - intel-openmp            # [linux or win or (osx and x86_64)]
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
+        # libgomp is also required for linux-64 alongside intel-omp.
+        # llvm-openmp is required only for osx-arm64
+        - openblas                # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
+        - llvm-openmp             # [osx and arm64]
+        # MKL for win, linux-64, and osx-64. All require intel-openmp.
+        - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run:
-        - openblas                # [osx and arm64]
-        - mkl 2023.1.0            # [linux or win or (osx and x86_64)]
-        - llvm-openmp             # [osx and arm64]
-        - intel-openmp            # [linux or win or (osx and x86_64)]
+        # Run dependencies follow the same logic as above.
+        - libopenblas             # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
+        - llvm-openmp             # [osx and arm64]
+        - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
@@ -206,12 +211,19 @@ outputs:
         - ninja
       host:
         - python
+        - wheel
+        - packaging
+        - setuptools
         - numpy
-        - openblas                # [osx and arm64]
-        - mkl 2023.1.0            # [linux or win or (osx and x86_64)]
-        - llvm-openmp             # [osx and arm64]
-        - intel-openmp            # [linux or win or (osx and x86_64)]
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
+        # libgomp is also required for linux-64 alongside intel-omp.
+        # llvm-openmp is required only for osx-arm64
+        - openblas                # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
+        - llvm-openmp             # [osx and arm64]
+        # MKL for win, linux-64, and osx-64. All require intel-openmp.
+        - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        - intel-openmp            # [linux64 or win or (osx and x86_64)]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
