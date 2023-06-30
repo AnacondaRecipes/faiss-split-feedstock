@@ -1,9 +1,7 @@
 {% set version = "1.7.4" %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
-{% if cuda_compiler_version is undefined %}
-    {% set cuda_compiler_version = "None" %}
-{% endif %}
 {% set faiss_proc_type = "cuda" if cuda_compiler_version != "None" else "cpu" %}
+
 # headers for upstream-folders 'faiss/*.h', 'faiss/{impl,invlists,utils}/*.h',
 # see https://github.com/facebookresearch/faiss/blob/v{{ version }}/faiss/CMakeLists.txt;
 # gpu adds headers in 'faiss/gpu/*.h', 'faiss/gpu/{impl,utils}/*.(cu)?h'.
@@ -41,7 +39,7 @@
     'utils/simdlib_neon.h', 'utils/sorting.h', 'utils/utils.h',
 ] + (not win) * [
     'invlists/OnDiskInvertedLists.h'
-    ] + (cuda_compiler_version != "None") * [
+] + (cuda_compiler_version != "None") * [
     'gpu/GpuAutoTune.h', 'gpu/GpuCloner.h', 'gpu/GpuClonerOptions.h', 'gpu/GpuDistance.h',
     'gpu/GpuFaissAssert.h', 'gpu/GpuIcmEncoder.h', 'gpu/GpuIndex.h', 'gpu/GpuIndexBinaryFlat.h',
     'gpu/GpuIndexFlat.h', 'gpu/GpuIndexIVF.h', 'gpu/GpuIndexIVFFlat.h', 'gpu/GpuIndexIVFPQ.h',
@@ -107,9 +105,8 @@ source:
 
 build:
   number: 0
-  skip: true  # [cuda_compiler_version == "10.2"]
-  # always crashes
-  skip: true  # [win and cuda_compiler_version in ("11.0", "11.1")]
+  skip: True # [py<38]
+  skip: True # [linux and (s390x or ppc64le)]
 
 requirements:
   build:
@@ -154,17 +151,18 @@ outputs:
       build:
         - {{ compiler('cxx') }}
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
-        # necessary for conda-build to build the python bindings per version
-        - python                  # [build_platform != target_platform]
         - cmake
         - ninja
-        - libgomp                 # [linux]
-        - llvm-openmp             # [osx]
       host:
-        - libblas
-        - liblapack
+        - python
+        - openblas                # [osx and arm64]
+        - mkl 2023.1.0            # [linux or win or (osx and x86_64)]
+        - llvm-openmp             # [osx and arm64]
+        - intel-openmp            # [linux or win or (osx and x86_64)]
+        - libgomp                 # [linux]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
+        - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
         - faiss-proc =*={{ faiss_proc_type }}
 
     test:
@@ -191,8 +189,8 @@ outputs:
     script: build-pkg.sh          # [not win]
     script: build-pkg.bat         # [win]
     build:
-      string: "py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
-      string: "py{{ CONDA_PY }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
+      string: "py{{ PY_VER }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
+      string: "py{{ PY_VER }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -200,18 +198,16 @@ outputs:
         - swig
         - cmake
         - ninja
-        - libgomp                             # [linux]
-        - llvm-openmp                         # [osx]
-        - python                              # [build_platform != target_platform]
-        - numpy                               # [build_platform != target_platform]
       host:
         - python
-        - pip
         - numpy
+        - openblas                # [osx and arm64]
+        - mkl 2023.1.0            # [linux or win or (osx and x86_64)]
+        - llvm-openmp             # [osx and arm64]
+        - intel-openmp            # [linux or win or (osx and x86_64)]
+        - libgomp                 # [linux]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
-        - libblas
-        - liblapack
       run:
         - python
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
@@ -219,14 +215,11 @@ outputs:
         - {{ pin_compatible('numpy') }}
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
+        - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
         - faiss-proc =*={{ faiss_proc_type }}
 
     test:
       requires:
-        # trying to test all blas-variants runs into conda/conda-build#3947
-        # - libblas =*=*{{ blas_impl }}
-        # testing with MKL on x86_64, as upstream considers this the most important
-        - libblas =*=*mkl  # [x86_64]
         - scipy
         - pytest
       files:
@@ -264,6 +257,16 @@ outputs:
     requirements:
       run:
         - faiss ={{ version }}=*_cpu
+    test:
+      imports:
+        - faiss
+
+  - name: faiss-gpu
+    build:
+      skip: true  # [cuda_compiler_version == "None"]
+    requirements:
+      run:
+        - faiss ={{ version }}=*_cuda
     test:
       imports:
         - faiss
