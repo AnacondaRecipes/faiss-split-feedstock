@@ -14,6 +14,7 @@ cmake -G Ninja ^
     -Dfaiss_ROOT=_libfaiss_generic_stage ^
     -DFAISS_ENABLE_GPU=!FAISS_ENABLE_GPU! ^
     -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_LIBRARY_PATH="%LIBRARY_BIN%" ^
     -DPython_EXECUTABLE="%PYTHON%" ^
     faiss/python
 if %ERRORLEVEL% neq 0 exit 1
@@ -28,6 +29,7 @@ cmake -G Ninja ^
     -DFAISS_OPT_LEVEL=avx2 ^
     -DFAISS_ENABLE_GPU=!FAISS_ENABLE_GPU! ^
     -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_LIBRARY_PATH="%LIBRARY_BIN%" ^
     -DPython_EXECUTABLE="%PYTHON%" ^
     faiss/python
 if %ERRORLEVEL% neq 0 exit 1

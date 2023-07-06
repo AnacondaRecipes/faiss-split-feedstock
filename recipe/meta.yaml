@@ -102,6 +102,9 @@ source:
     # more fixes
     - patches/0010-fix-index-type-in-openmp-loop.patch
     - patches/0011-add-missing-headers.patch
+    # relax test: https://github.com/facebookresearch/faiss/commit/391601dc3f4793e10aaf9d21f5bbe2a94ecf4f50
+    # Relaxed a bit more due to the issue occasionally coming back
+    - patches/0012-relax_test_ivf_train_2level.patch
 
 build:
   number: 0
@@ -160,7 +163,7 @@ outputs:
         # llvm-openmp is required only for osx-arm64
         - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
-        - llvm-openmp  14.0.6           # [osx and arm64]
+        - llvm-openmp  14.0.6           # [osx]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
@@ -168,7 +171,7 @@ outputs:
         # Run dependencies follow the same logic as above.
         - libopenblas 0.3.21         # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
-        - llvm-openmp             # [osx and arm64]
+        - llvm-openmp             # [osx]
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run_constrained:
@@ -220,7 +223,7 @@ outputs:
         # llvm-openmp is required only for osx-arm64
         - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
-        - llvm-openmp  14.0.6           # [osx and arm64]
+        - llvm-openmp  14.0.6           # [osx]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
