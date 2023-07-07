@@ -42,6 +42,12 @@ if [[ "${target_platform}" == *-64 ]]; then
     cp _build_python_avx2/_swigfaiss_avx2.so _build_python_generic/_swigfaiss_avx2.so
 fi
 
+echo "SEARCHING FOR LIBFAISS"
+pushd $PREFIX/..
+find ./* -type f -name 'libfaiss.dylib'
+find ./* -type f -name 'libfaiss_avx2.dylib'
+popd
+
 # Build actual python module.
 pushd _build_python_generic
 $PYTHON setup.py install --single-version-externally-managed --record=record.txt --prefix=$PREFIX

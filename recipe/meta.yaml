@@ -174,10 +174,10 @@ outputs:
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run:
         # Run dependencies follow the same logic as above.
-        - libopenblas 0.3.21         # [(osx and arm64) or linux-ppc64le or linux-s390x]
+        - libopenblas            # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libgomp                 # [linux]
         - llvm-openmp             # [osx]
-        - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        - mkl 2023.1.*            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
@@ -241,7 +241,7 @@ outputs:
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
         - python
-        - mkl 2023.1.0           # [linux64 or win or (osx and x86_64)]
+        - mkl 2023.1.*           # [linux64 or win or (osx and x86_64)]
         - libopenblas    # [(osx and arm64) or linux-ppc64le or linux-s390x]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
@@ -273,6 +273,8 @@ outputs:
         {% set skips = skips + " or (test_contrib and test_checkpoint)" %}                 # [win]
         # two failing tests on on aarch (test_index_accuracy & test_index_accuracy2)
         {% set skips = skips + " or (test_residual_quantizer and test_index_accuracy)" %}  # [aarch64 or ppc64le]
+        # test_ivf_train_2level fails randomly on linux-64. Upstream recently increased the threshold. Tried that, but still failing occasionally.
+        {% set skips = skips + "or test_ivf_train_2level" %}  # [linux and x86_64]
         # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
         # we expect faiss will load the library with AVX2-support, see
         # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
