@@ -110,6 +110,9 @@ build:
   number: 0
   skip: True # [py<38]
   skip: True # [linux and (s390x or ppc64le)]
+  missing_dso_whitelist:  # [osx]
+    - '*/libfaiss_avx2.dylib'  # [osx and x86_64]
+    - '*/libfaiss.dylib'  # [osx]
 
 requirements:
   build:
@@ -211,8 +214,8 @@ outputs:
       string: "py{{ PY_VER }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
       string: "py{{ PY_VER }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
       missing_dso_whitelist:  # [osx]
-        - $PREFIX/../work/_libfaiss_avx2_stage/lib/libfaiss_avx2.dylib  # [osx and x86_64]
-        - $PREFIX/../work/_libfaiss_generic_stage/lib/libfaiss.dylib  # [osx]
+        - '*/libfaiss_avx2.dylib'  # [osx and x86_64]
+        - '*/libfaiss.dylib'  # [osx]
     requirements:
       build:
         - {{ compiler('c') }}
