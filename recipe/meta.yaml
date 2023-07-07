@@ -113,7 +113,10 @@ build:
 
 requirements:
   build:
+    - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - patch  # [not win]
+    - m2-patch  # [win]
 
 outputs:
   # A meta-package to select CPU or GPU build for faiss.
@@ -152,6 +155,7 @@ outputs:
         - libfaiss{{ libext }} =*=*_{{ faiss_proc_type }}
     requirements:
       build:
+        - {{ compiler('c') }}
         - {{ compiler('cxx') }}
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - cmake
@@ -211,6 +215,7 @@ outputs:
         - $PREFIX/../work/_libfaiss_generic_stage/lib/libfaiss.dylib  # [osx]
     requirements:
       build:
+        - {{ compiler('c') }}
         - {{ compiler('cxx') }}
         - {{ compiler('cuda') }}              # [cuda_compiler_version != "None"]
         - swig
