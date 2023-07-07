@@ -166,7 +166,7 @@ outputs:
         - llvm-openmp  14.0.6           # [osx]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
-        - mkl-devel 2023.1.0      # [linux64 or win or (osx and x86_64)]
+        - mkl-devel 2023.1.0      # [win]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
       run:
         # Run dependencies follow the same logic as above.
@@ -207,8 +207,8 @@ outputs:
       string: "py{{ PY_VER }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
       string: "py{{ PY_VER }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
       missing_dso_whitelist:  # [osx]
-        - $PREFIX/../_libfaiss_avx2_stage/lib/libfaiss_avx2.dylib  # [osx and x86_64]
-        - $PREFIX/../_libfaiss_generic_stage/lib/libfaiss.dylib  # [osx]
+        - $PREFIX/../work/_libfaiss_avx2_stage/lib/libfaiss_avx2.dylib  # [osx and x86_64]
+        - $PREFIX/../work/_libfaiss_generic_stage/lib/libfaiss.dylib  # [osx]
     requirements:
       build:
         - {{ compiler('cxx') }}
@@ -230,7 +230,7 @@ outputs:
         - llvm-openmp  14.0.6           # [osx]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
-        - mkl-devel 2023.1.0      # [linux64 or win or (osx and x86_64)]
+        - mkl-devel 2023.1.0      # [win]
         - intel-openmp            # [linux64 or win or (osx and x86_64)]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
