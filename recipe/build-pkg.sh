@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+cd ${SRC_DIR}
+
 FAISS_ENABLE_GPU=""
 if [ ${cuda_compiler_version} != "None" ]; then
     FAISS_ENABLE_GPU="ON"
