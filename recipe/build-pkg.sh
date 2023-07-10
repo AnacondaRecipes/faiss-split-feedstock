@@ -16,6 +16,7 @@ cmake -G Ninja \
     -Dfaiss_ROOT=_libfaiss_generic_stage/ \
     -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=$PREFIX \
     -DCMAKE_LIBRARY_PATH=${PREFIX}/lib \
     -DPython_EXECUTABLE="${PYTHON}" \
     -B _build_python_generic \
@@ -30,7 +31,8 @@ if [[ "${target_platform}" == *-64 ]]; then
         -DFAISS_OPT_LEVEL=avx2 \
         -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
         -DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_LIBRARY_PATH=${PREFIX}/lib \
+        -DCMAKE_INSTALL_PREFIX=$PREFIX \
+        -DCMAKE_LIBRARY_PATH=${PREFIX}/lib \
         -DPython_EXECUTABLE="${PYTHON}" \
         -B _build_python_avx2 \
         faiss/python
@@ -44,8 +46,10 @@ fi
 
 echo "SEARCHING FOR LIBFAISS"
 pushd $PREFIX/..
-find ./* -type f -name 'libfaiss.dylib'
-find ./* -type f -name 'libfaiss_avx2.dylib'
+find ./* -type f -name 'libfaiss.dylib' -exec ls -l {} \;
+find ./* -type f -name 'libfaiss_avx2.dylib' -exec ls -l {} \;
+echo "ENV VARS:"
+env
 popd
 
 # Build actual python module.
