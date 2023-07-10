@@ -223,8 +223,8 @@ outputs:
     script: build-pkg.sh          # [not win]
     script: build-pkg.bat         # [win]
     build:
-      string: "py{{ PY_VER }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
-      string: "py{{ PY_VER }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
+      string: "py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
+      string: "py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
         #    missing_dso_whitelist:  # [osx]
         # - '*/libfaiss_avx2.dylib'  # [osx and x86_64]
         #- '*/libfaiss.dylib'  # [osx]
