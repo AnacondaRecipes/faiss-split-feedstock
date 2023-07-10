@@ -125,6 +125,7 @@ requirements:
     - ninja
   host:
     - python
+    - pip
     - libgomp  # [linux]
     - llvm-openmp  # [osx]
     - openblas 0.3.21         # [(osx and arm64) or linux-ppc64le or linux-s390x]
@@ -240,6 +241,7 @@ outputs:
         - wheel
         - packaging
         - setuptools
+        - pip
         - numpy
         # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
         # libgomp is also required for linux-64 alongside intel-omp.

@@ -54,7 +54,8 @@ popd
 
 # Build actual python module.
 pushd _build_python_generic
-$PYTHON setup.py install --single-version-externally-managed --record=record.txt --prefix=$PREFIX
+#$PYTHON setup.py install --single-version-externally-managed --record=record.txt --prefix=$PREFIX
+$PYTHON -m pip install . -vv --no-deps --no-build-isolation --ignore-installed --single-version-externally-managed --record=record.txt --prefix=$PREFIX 
 popd
 # clean up cmake-cache between builds
 rm -r _build_python_*
