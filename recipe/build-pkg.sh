@@ -10,8 +10,6 @@ else
     FAISS_ENABLE_GPU="OFF"
 fi
 
-export LD_LIBRARY_PATH=${PREFIX}/lib:$LD_LIBRARY_PATH
-
 # Build vanilla version (no avx2), see build-lib.sh
 cmake -G Ninja \
     ${CMAKE_ARGS} \
@@ -46,18 +44,7 @@ if [[ "${target_platform}" == *-64 ]]; then
     cp _build_python_avx2/_swigfaiss_avx2.so _build_python_generic/_swigfaiss_avx2.so
 fi
 
-echo "SEARCHING FOR LIBFAISS"
-pushd $PREFIX/..
-find ./* -type f -name 'libfaiss.dylib' -exec ls -l {} \;
-find ./* -type f -name 'libfaiss_avx2.dylib' -exec ls -l {} \;
-echo "ENV VARS:"
-env
-popd
-
 # Build actual python module.
-#pushd _build_python_generic
-#$PYTHON setup.py install --single-version-externally-managed --record=record.txt --prefix=$PREFIX
 $PYTHON -m pip install ./_build_python_generic -vvv --no-deps --no-build-isolation --ignore-installed
-#popd
 # clean up cmake-cache between builds
 rm -r _build_python_*
