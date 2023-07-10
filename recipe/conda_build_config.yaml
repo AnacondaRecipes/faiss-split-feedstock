@@ -2,3 +2,5 @@ cxx_compiler:          # [win]
   - vs2019               # [win]
 cuda_compiler_version:
   - None
+cxx_compiler_version:      # [osx]
+  - 15                     # [osx]

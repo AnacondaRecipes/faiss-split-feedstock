@@ -242,7 +242,7 @@ outputs:
         - packaging
         - setuptools
         - pip
-        - numpy
+        - numpy  {{ numpy }}
         # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
         # libgomp is also required for linux-64 alongside intel-omp.
         # llvm-openmp is required only for osx-arm64
