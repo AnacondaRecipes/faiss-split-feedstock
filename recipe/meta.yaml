@@ -169,17 +169,17 @@ outputs:
         - llvm-openmp  14.0.6     # [osx]
       host:
         - python
-        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
-        - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, linux-aarch64. Currently skipping s390x and ppc64le.
+        - openblas 0.3.21               # [aarch64 or arm64]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
-        - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        - mkl 2023.1.0            # [not (aarch64 or arm64)] 
         - intel-openmp            # [linux64 or win]
         # mkl-devel seems to be required for win.
         - mkl-devel 2023.1.0      # [win]
       run:
         # Run dependencies follow the same logic as above.
-        - libopenblas            # [(osx and arm64) or linux-ppc64le or linux-s390x]
-        - mkl 2023.1.*            # [linux64 or win or (osx and x86_64)]
+        - libopenblas            # [aarch64 or arm64] 
+        - mkl 2023.1.*           # [not (aarch64 or arm64)]
         - {{ pin_compatible('intel-openmp') }}  # [linux64 or win]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
@@ -232,10 +232,10 @@ outputs:
         - setuptools
         - pip
         - numpy  {{ numpy }}
-        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
-        - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, and linux-aarch64. Currently skipping s390x and ppc64le.
+        - openblas 0.3.21         # [aarch64 or arm64]     
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
-        - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        - mkl 2023.1.0            # [not (aarch64 or arm64)] 
         # mkl-devel seems to be required for win.
         - mkl-devel 2023.1.0      # [win]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
@@ -245,6 +245,8 @@ outputs:
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
         - {{ pin_compatible('numpy') }}
+        - libopenblas            # [aarch64 or arm64]
+        - mkl 2023.1.*           # [not (aarch64 or arm64)]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
