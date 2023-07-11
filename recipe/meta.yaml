@@ -165,10 +165,8 @@ outputs:
         - ninja
         # libgomp is required for linux-64 alongside intel-omp.
         - libgomp                 # [linux]
-        # llvm-openmp is required only for osx.
+        # llvm-openmp is required only for osx
         - llvm-openmp  14.0.6     # [osx]
-        # mkl-devel is mainly required for win.
-        - mkl-devel 2023.1.0      # [x86_64]
       host:
         - python
         # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le.
@@ -176,6 +174,8 @@ outputs:
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
         - intel-openmp            # [linux64 or win]
+        # mkl-devel seems to be required for win.
+        - mkl-devel 2023.1.0      # [win]
       run:
         # Run dependencies follow the same logic as above.
         - libopenblas            # [(osx and arm64) or linux-ppc64le or linux-s390x]
@@ -225,8 +225,6 @@ outputs:
         - libgomp                 # [linux]
         # llvm-openmp is required only for osx
         - llvm-openmp  14.0.6     # [osx]
-        # mkl-devel is mainly required for win.
-        - mkl-devel 2023.1.0      # [x86_64]
       host:
         - python
         - wheel
@@ -238,6 +236,8 @@ outputs:
         - openblas 0.3.21               # [(osx and arm64) or linux-ppc64le or linux-s390x]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl 2023.1.0            # [linux64 or win or (osx and x86_64)]
+        # mkl-devel seems to be required for win.
+        - mkl-devel 2023.1.0      # [win]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
