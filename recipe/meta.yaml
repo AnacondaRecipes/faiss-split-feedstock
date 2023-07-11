@@ -108,9 +108,8 @@ source:
 
 build:
   number: 0
-  skip: True  # [py<38]
   # some MKL issue for py 3.8 on osx-64
-  skip: True  # [py==38 and osx and x86_64]
+  skip: True  # [py<38 or (py==38 and osx and x86_64)]
 
 requirements:
   build:
@@ -153,6 +152,8 @@ outputs:
       skip: true  # [py==38 and osx and x86_64]
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
       string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
+      missing_dso_whitelist:  # [s390x]
+        - '$RPATH/ld64.so.1'  # [s390x]
       run_exports:
         # faiss follows SemVer, so restrict packages built with libfaiss to use
         # at least the same version at runtime, but below the next major version.
