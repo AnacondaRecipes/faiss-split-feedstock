@@ -108,8 +108,9 @@ source:
 
 build:
   number: 0
-  skip: True # [py<38 or (py==38 and osx and x86_64)]
-  skip: True # [linux and (s390x or ppc64le)]
+  skip: True  # [py<38]
+  # some MKL issue for py 3.8 on osx-64
+  skip: True  # [py==38 and osx and x86_64]
 
 requirements:
   build:
@@ -124,6 +125,7 @@ outputs:
   - name: faiss-proc
     version: 1.0.0
     build:
+      # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
       string: {{ faiss_proc_type }}
     test:
@@ -147,9 +149,10 @@ outputs:
     script: build-lib-{{ CF_FAISS_BUILD }}.sh   # [not win]
     script: build-lib-{{ CF_FAISS_BUILD }}.bat  # [win]
     build:
+      # some MKL issue for py 3.8 on osx-64
+      skip: true  # [py==38 and osx and x86_64]
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
       string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
-      skip: true  # [py==38 and osx and x86_64]
       run_exports:
         # faiss follows SemVer, so restrict packages built with libfaiss to use
         # at least the same version at runtime, but below the next major version.
@@ -169,17 +172,17 @@ outputs:
         - llvm-openmp  14.0.6     # [osx]
       host:
         - python
-        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, linux-aarch64. Currently skipping s390x and ppc64le.
-        - openblas 0.3.21               # [aarch64 or arm64]
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, linux-aarch64.
+        - openblas 0.3.21         # [s390x or ppc64le or aarch64 or arm64]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
-        - mkl 2023.1.0            # [not (aarch64 or arm64)] 
+        - mkl 2023.1.0            # [not (s390x or ppc64le or aarch64 or arm64)] 
         - intel-openmp            # [linux64 or win]
         # mkl-devel seems to be required for win.
         - mkl-devel 2023.1.0      # [win]
       run:
         # Run dependencies follow the same logic as above.
-        - libopenblas            # [aarch64 or arm64] 
-        - mkl 2023.1.*           # [not (aarch64 or arm64)]
+        - libopenblas            # [s390x or ppc64le or aarch64 or arm64] 
+        - mkl 2023.1.*           # [not (s390x or ppc64le or aarch64 or arm64)]
         - {{ pin_compatible('intel-openmp') }}  # [linux64 or win]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
@@ -210,6 +213,7 @@ outputs:
     script: build-pkg.sh          # [not win]
     script: build-pkg.bat         # [win]
     build:
+      # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
       string: "py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
       string: "py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
@@ -217,7 +221,7 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}              # [cuda_compiler_version != "None"]
+        - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - swig
         - cmake
         - ninja
@@ -232,10 +236,10 @@ outputs:
         - setuptools
         - pip
         - numpy  {{ numpy }}
-        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, and linux-aarch64. Currently skipping s390x and ppc64le.
-        - openblas 0.3.21         # [aarch64 or arm64]     
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, and linux-aarch64. 
+        - openblas 0.3.21         # [s390x or ppc64le or aarch64 or arm64]     
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
-        - mkl 2023.1.0            # [not (aarch64 or arm64)] 
+        - mkl 2023.1.0            # [not (s390x or ppc64le or aarch64 or arm64)] 
         # mkl-devel seems to be required for win.
         - mkl-devel 2023.1.0      # [win]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
@@ -245,8 +249,8 @@ outputs:
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
         - {{ pin_compatible('numpy') }}
-        - libopenblas            # [aarch64 or arm64]
-        - mkl 2023.1.*           # [not (aarch64 or arm64)]
+        - libopenblas            # [s390x or ppc64le or aarch64 or arm64]
+        - mkl 2023.1.*           # [not (s390x or ppc64le or aarch64 or arm64)]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
@@ -290,6 +294,7 @@ outputs:
   - name: faiss-cpu
     build:
       skip: true  # [cuda_compiler_version != "None"]
+      # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
     requirements:
       run:
@@ -301,6 +306,7 @@ outputs:
   - name: faiss-gpu
     build:
       skip: true  # [cuda_compiler_version == "None"]
+      # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
     requirements:
       run:
