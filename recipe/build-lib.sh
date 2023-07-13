@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+cd ${SRC_DIR}
 # function for facilitate version comparison; cf. https://stackoverflow.com/a/37939589
 function version2int { echo "$@" | awk -F. '{ printf("%d%02d\n", $1, $2); }'; }
 

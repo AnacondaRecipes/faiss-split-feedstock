@@ -43,7 +43,7 @@ if %ERRORLEVEL% neq 0 exit 1
 
 :: Build actual python module.
 pushd _build_python_generic
-%PYTHON% setup.py install --single-version-externally-managed --record=record.txt --prefix=%PREFIX%
+%PYTHON% -m pip install . -vvv --no-deps --no-build-isolation --ignore-installed
 if %ERRORLEVEL% neq 0 exit 1
 popd
 :: clean up cmake-cache between builds

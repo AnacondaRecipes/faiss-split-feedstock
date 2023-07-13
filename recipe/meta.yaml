@@ -102,23 +102,50 @@ source:
     # more fixes
     - patches/0010-fix-index-type-in-openmp-loop.patch
     - patches/0011-add-missing-headers.patch
+    # relax test: https://github.com/facebookresearch/faiss/commit/391601dc3f4793e10aaf9d21f5bbe2a94ecf4f50
+    # Relaxed a bit more due to the issue occasionally coming back
+    - patches/0012-relax_test_ivf_train_2level.patch
 
 build:
   number: 0
-  skip: true  # [cuda_compiler_version == "10.2"]
-  # always crashes
-  skip: true  # [win and cuda_compiler_version in ("11.0", "11.1")]
+  # some MKL issue for py 3.8 on osx-64
+  skip: true  # [py<38 or (py==38 and osx and x86_64)]
+  # Too many tests are failing on s390x.
+  skip: true  # [linux and (s390x or ppc64le)]
 
 requirements:
   build:
+    - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
+    - patch  # [not win]
+    - m2-patch  # [win]
+    - cmake
+    - ninja
+    # libgomp is required for linux-64 alongside intel-omp.
+    - libgomp                 # [linux]
+    # llvm-openmp is required only for osx
+    - llvm-openmp  14.0.6     # [osx]
+  host:
+    - python
+    # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, linux-aarch64.
+    - openblas 0.3.21         # [s390x or ppc64le or aarch64 or arm64]
+    # MKL for win, linux-64, and osx-64. All require intel-openmp.
+    - mkl 2023.1.0            # [not (s390x or ppc64le or aarch64 or arm64)]
+    - intel-openmp            # [linux64 or win]
+    # mkl-devel seems to be required for win.
+    - mkl-devel 2023.1.0      # [win]
 
 outputs:
   # A meta-package to select CPU or GPU build for faiss.
   - name: faiss-proc
     version: 1.0.0
     build:
+      # some MKL issue for py 3.8 on osx-64
+      skip: true  # [py==38 and osx and x86_64]
       string: {{ faiss_proc_type }}
+    requirements:
+
     test:
       commands:
         - exit 0
@@ -140,6 +167,8 @@ outputs:
     script: build-lib-{{ CF_FAISS_BUILD }}.sh   # [not win]
     script: build-lib-{{ CF_FAISS_BUILD }}.bat  # [win]
     build:
+      # some MKL issue for py 3.8 on osx-64
+      skip: true  # [py==38 and osx and x86_64]
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
       string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
       run_exports:
@@ -150,17 +179,30 @@ outputs:
         - libfaiss{{ libext }} =*=*_{{ faiss_proc_type }}
     requirements:
       build:
+        - {{ compiler('c') }}
         - {{ compiler('cxx') }}
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
-        # necessary for conda-build to build the python bindings per version
-        - python                  # [build_platform != target_platform]
         - cmake
         - ninja
+        # libgomp is required for linux-64 alongside intel-omp.
         - libgomp                 # [linux]
-        - llvm-openmp             # [osx]
+        # llvm-openmp is required only for osx
+        - llvm-openmp  14.0.6     # [osx]
       host:
-        - libblas
-        - liblapack
+        - python
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, linux-aarch64.
+        - openblas 0.3.21         # [s390x or ppc64le or aarch64 or arm64]
+        # MKL for win, linux-64, and osx-64. All require intel-openmp.
+        - mkl 2023.1.0            # [not (s390x or ppc64le or aarch64 or arm64)] 
+        - intel-openmp            # [linux64 or win]
+        # mkl-devel seems to be required for win.
+        - mkl-devel 2023.1.0      # [win]
+      run:
+        # Run dependencies follow the same logic as above.
+        - libopenblas            # [s390x or ppc64le or aarch64 or arm64] 
+        - mkl 2023.1.*           # [not (s390x or ppc64le or aarch64 or arm64)]
+        - {{ pin_compatible('intel-openmp') }}  # [linux64 or win]
+        - llvm-openmp  # [osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
@@ -190,33 +232,45 @@ outputs:
     script: build-pkg.sh          # [not win]
     script: build-pkg.bat         # [win]
     build:
-      string: "py{{ CONDA_PY }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
-      string: "py{{ CONDA_PY }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
+      # some MKL issue for py 3.8 on osx-64
+      skip: true  # [py==38 and osx and x86_64]
+      string: "py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
+      string: "py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
     requirements:
       build:
+        - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}              # [cuda_compiler_version != "None"]
+        - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - swig
         - cmake
         - ninja
-        - libgomp                             # [linux]
-        - llvm-openmp                         # [osx]
-        - python                              # [build_platform != target_platform]
-        - cross-python_{{ target_platform }}  # [build_platform != target_platform]
-        - numpy                               # [build_platform != target_platform]
+        # libgomp is required for linux-64 alongside intel-omp.
+        - libgomp                 # [linux]
+        # llvm-openmp is required only for osx
+        - llvm-openmp  14.0.6     # [osx]
       host:
         - python
+        - wheel
+        - packaging
+        - setuptools
         - pip
-        - numpy
+        - numpy  {{ numpy }}
+        # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, and linux-aarch64. 
+        - openblas 0.3.21         # [s390x or ppc64le or aarch64 or arm64]     
+        # MKL for win, linux-64, and osx-64. All require intel-openmp.
+        - mkl 2023.1.0            # [not (s390x or ppc64le or aarch64 or arm64)] 
+        # mkl-devel seems to be required for win.
+        - mkl-devel 2023.1.0      # [win]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
-        - libblas
-        - liblapack
       run:
         - python
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
         - {{ pin_compatible('numpy') }}
+        - libopenblas            # [s390x or ppc64le or aarch64 or arm64]
+        - mkl 2023.1.*           # [not (s390x or ppc64le or aarch64 or arm64)]
+        - llvm-openmp            # [osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
@@ -224,10 +278,6 @@ outputs:
 
     test:
       requires:
-        # trying to test all blas-variants runs into conda/conda-build#3947
-        # - libblas =*=*{{ blas_impl }}
-        # testing with MKL on x86_64, as upstream considers this the most important
-        - libblas =*=*mkl  # [x86_64]
         - scipy
         - pytest
       files:
@@ -248,6 +298,11 @@ outputs:
         {% set skips = skips + " or (test_contrib and test_checkpoint)" %}                 # [win]
         # two failing tests on on aarch (test_index_accuracy & test_index_accuracy2)
         {% set skips = skips + " or (test_residual_quantizer and test_index_accuracy)" %}  # [aarch64 or ppc64le]
+        # test_ivf_train_2level fails randomly on linux-64. Upstream recently increased the threshold. Tried that, but still failing occasionally.
+        {% set skips = skips + " or test_ivf_train_2level" %}  # [linux and x86_64]
+        # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold, e.g: (AssertionError: 0.10208797454833984 not less than 0.09767270088195801)
+        # These use openblas while upstream mentions MKL ensures the best speed.
+        {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64] 
         # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
         # we expect faiss will load the library with AVX2-support, see
         # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
@@ -262,6 +317,8 @@ outputs:
   - name: faiss-cpu
     build:
       skip: true  # [cuda_compiler_version != "None"]
+      # some MKL issue for py 3.8 on osx-64
+      skip: true  # [py==38 and osx and x86_64]
     requirements:
       run:
         - faiss ={{ version }}=*_cpu
@@ -272,6 +329,8 @@ outputs:
   - name: faiss-gpu
     build:
       skip: true  # [cuda_compiler_version == "None"]
+      # some MKL issue for py 3.8 on osx-64
+      skip: true  # [py==38 and osx and x86_64]
     requirements:
       run:
         - faiss ={{ version }}=*_cuda
@@ -285,20 +344,18 @@ about:
   license_family: MIT
   license_file: LICENSE
   summary: 'A library for efficient similarity search and clustering of dense vectors.'
-
   description: |
     Faiss is a library for efficient similarity search and clustering of dense vectors.
     It contains algorithms that search in sets of vectors of any size, up to ones that
     possibly do not fit in RAM. It also contains supporting code for evaluation and
     parameter tuning. Faiss is written in C++ with complete wrappers for Python/numpy.
     Some of the most useful algorithms are implemented on the GPU. It is developed by
-    [Facebook AI Research](https://research.fb.com/category/facebook-ai-research-fair/).
+    Facebook AI Research.
 
     For best performance, the maintainers of the package
     [recommend](https://github.com/conda-forge/staged-recipes/pull/11337#issuecomment-623718460)
-    using the MKL implementation of blas/lapack. You can ensure that this is installed
-    by adding "libblas =*=*mkl" to your dependencies.
-  doc_url: https://rawgit.com/facebookresearch/faiss/master/docs/html/annotated.html
+    using the MKL implementation of blas/lapack.
+  doc_url: https://faiss.ai/
   dev_url: https://github.com/facebookresearch/faiss
 
 extra:
