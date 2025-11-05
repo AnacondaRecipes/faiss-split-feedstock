@@ -145,8 +145,6 @@ outputs:
     version: 1.0.0
     build:
       string: {{ faiss_proc_type }}
-    requirements:
-
     test:
       commands:
         - exit 0
