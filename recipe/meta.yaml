@@ -144,8 +144,6 @@ outputs:
   - name: faiss-proc
     version: 1.0.0
     build:
-      # some MKL issue for py 3.8 on osx-64
-      skip: true  # [py==38 and osx and x86_64]
       string: {{ faiss_proc_type }}
     requirements:
 
