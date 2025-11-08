@@ -2,6 +2,9 @@
 
 SetLocal EnableDelayedExpansion
 
+:: Remove sample external module test because faiss_example_external_module is not packaged
+if exist tests\external_module_test.py del tests\external_module_test.py
+
 if "%HAS_AVX2%"=="NO" (
     GOTO Generic
 )

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -ex
 
+# tests/external_module_test.py requires the sample module built only when BUILD_TESTING=ON
+# Remove it because the package does not ship faiss_example_external_module.
+rm -f tests/external_module_test.py
+
 if [[ ${HAS_AVX2} == "YES" ]]; then
     python -c "from numpy.core._multiarray_umath import __cpu_features__; print(f'Testing version with AVX2-support - ' + str(__cpu_features__['AVX2']))"
     pytest tests --log-file-level=INFO --log-file=log.txt -k "not $SKIPS"
