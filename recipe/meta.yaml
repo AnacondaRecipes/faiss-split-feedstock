@@ -111,7 +111,7 @@ source:
 
 build:
   number: 0
-  # some MKL issue for py 3.8 on osx-64
+  # some MKL issue for py 3.8 on osx-64 
   skip: true  # [py<38 or (py==38 and osx and x86_64)]
   # Too many tests are failing on s390x.
   skip: true  # [linux and (s390x or ppc64le)]
