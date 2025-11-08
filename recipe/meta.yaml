@@ -309,6 +309,8 @@ outputs:
         # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold, e.g: (AssertionError: 0.10208797454833984 not less than 0.09767270088195801)
         # These use openblas while upstream mentions MKL ensures the best speed.
         {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64] 
+        # external module example is not packaged upstream; skip until it becomes available
+        {% set skips = skips + " or external_module_test" %}
         # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
         # we expect faiss will load the library with AVX2-support, see
         # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
