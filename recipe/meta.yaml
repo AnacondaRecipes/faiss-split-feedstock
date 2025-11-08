@@ -273,6 +273,7 @@ outputs:
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
         - {{ pin_compatible('numpy') }}
+        - packaging
         - libopenblas            # [s390x or ppc64le or aarch64 or arm64]
         - mkl {{ mkl }}.*        # [not (s390x or ppc64le or aarch64 or arm64)]
         - llvm-openmp            # [osx]
