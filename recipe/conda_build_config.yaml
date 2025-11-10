@@ -2,3 +2,10 @@ cxx_compiler:          # [win]
   - vs2019               # [win]
 cuda_compiler_version:
   - None
+python:
+  - 3.10
+  - "3.11"
+  - "3.12"
+  - "3.13"           # [not osx]
+  # Python 3.13 builds currently fail on macOS arm64 (upstream SWIG bindings not ready),
+  # so keep it enabled elsewhere but skip on osx for now.
