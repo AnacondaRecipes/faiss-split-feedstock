@@ -9,9 +9,15 @@ declare -a EXTRA_CMAKE_ARGS
 # Cross builds (linux-aarch64, linux-ppc64le, linux-s390x, osx-arm64) link
 # against OpenBLAS instead of MKL. Force FindBLAS to use OpenBLAS so it does
 # not attempt to run detection binaries on the build host (which fails when
-# cross compiling).
+# cross compiling). Also hand CMake the actual library path so it does not try
+# to execute detection binaries under emulation.
 if [[ "${target_platform}" == linux-aarch64 || "${target_platform}" == linux-ppc64le || "${target_platform}" == linux-s390x || "${target_platform}" == osx-arm64 ]]; then
     EXTRA_CMAKE_ARGS+=(-DBLA_VENDOR=OpenBLAS)
+    if [[ "${target_platform}" == osx-arm64 ]]; then
+        EXTRA_CMAKE_ARGS+=(-DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.dylib")
+    else
+        EXTRA_CMAKE_ARGS+=(-DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.so")
+    fi
 fi
 
 declare -a CUDA_CONFIG_ARGS
