@@ -28,6 +28,7 @@ if %ERRORLEVEL% neq 0 exit 1
 :: the advantage of the CPU feature detection in numpy is that it can be
 :: deactivated, see documentation of NPY_DISABLE_CPU_FEATURES upstream
 set NPY_DISABLE_CPU_FEATURES=AVX2
+set FAISS_DISABLE_CPU_FEATURES=AVX2
 
 python -c "from numpy.core._multiarray_umath import __cpu_features__; print(f'Testing version with AVX2-support - ' + str(__cpu_features__['AVX2']))"
 :: rerun test suite again without AVX2 support
