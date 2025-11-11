@@ -5,6 +5,15 @@ cd ${SRC_DIR}
 # function for facilitate version comparison; cf. https://stackoverflow.com/a/37939589
 function version2int { echo "$@" | awk -F. '{ printf("%d%02d\n", $1, $2); }'; }
 
+declare -a EXTRA_CMAKE_ARGS
+# Cross builds (linux-aarch64, linux-ppc64le, linux-s390x, osx-arm64) link
+# against OpenBLAS instead of MKL. Force FindBLAS to use OpenBLAS so it does
+# not attempt to run detection binaries on the build host (which fails when
+# cross compiling).
+if [[ "${target_platform}" == linux-aarch64 || "${target_platform}" == linux-ppc64le || "${target_platform}" == linux-s390x || "${target_platform}" == osx-arm64 ]]; then
+    EXTRA_CMAKE_ARGS+=(-DBLA_VENDOR=OpenBLAS)
+fi
+
 declare -a CUDA_CONFIG_ARGS
 if [ ${cuda_compiler_version} != "None" ]; then
     # for documentation see e.g.
@@ -48,6 +57,7 @@ BUILD_TESTING="OFF"
 # Build version depending on $CF_FAISS_BUILD (either "generic" or "avx2")
 cmake -G Ninja \
     ${CMAKE_ARGS} \
+    ${EXTRA_CMAKE_ARGS+"${EXTRA_CMAKE_ARGS[@]}"} \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_TESTING=${BUILD_TESTING} \
     -DFAISS_OPT_LEVEL=${CF_FAISS_BUILD} \
