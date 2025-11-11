@@ -14,9 +14,15 @@ declare -a EXTRA_CMAKE_ARGS
 if [[ "${target_platform}" == linux-aarch64 || "${target_platform}" == linux-ppc64le || "${target_platform}" == linux-s390x || "${target_platform}" == osx-arm64 ]]; then
     EXTRA_CMAKE_ARGS+=(-DBLA_VENDOR=OpenBLAS)
     if [[ "${target_platform}" == osx-arm64 ]]; then
-        EXTRA_CMAKE_ARGS+=(-DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.dylib")
+        EXTRA_CMAKE_ARGS+=(
+            -DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.dylib"
+            -DLAPACK_LIBRARIES="$PREFIX/lib/libopenblas.dylib"
+        )
     else
-        EXTRA_CMAKE_ARGS+=(-DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.so")
+        EXTRA_CMAKE_ARGS+=(
+            -DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.so"
+            -DLAPACK_LIBRARIES="$PREFIX/lib/libopenblas.so"
+        )
     fi
 fi
 
