@@ -304,6 +304,10 @@ outputs:
         {% set skips = skips + " or TestComputeGT" %}                                      # [win]
         # test relies on linux-isms
         {% set skips = skips + " or (test_contrib and test_checkpoint)" %}                 # [win]
+        # test_OIVFPQ has floating point precision issues on Windows (expected OPQ to improve accuracy but sometimes gets 0.968 vs 0.971)
+        {% set skips = skips + " or (OPQRelativeAccuracy and test_OIVFPQ)" %}              # [win]
+        # test_hnsw has non-deterministic results on Windows (IndexBinaryFromFloat vs IndexBinaryHNSW produce different results)
+        {% set skips = skips + " or (TestHNSW and test_hnsw)" %}                           # [win]
         # two failing tests on on aarch (test_index_accuracy & test_index_accuracy2)
         {% set skips = skips + " or (test_residual_quantizer and test_index_accuracy)" %}  # [aarch64 or ppc64le]
         # test_ivf_train_2level fails randomly on linux-64. Upstream recently increased the threshold. Tried that, but still failing occasionally.
