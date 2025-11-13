@@ -203,6 +203,12 @@ outputs:
         - intel-openmp            # [linux64 or win]
         # mkl-devel seems to be required for win.
         - mkl-devel {{ mkl }}     # [win]
+        # CUDA dependencies for GPU builds
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+        - cuda-cudart-dev  # [cuda_compiler_version != "None"]
+        - cuda-profiler-api  # [cuda_compiler_version != "None"]
+        - libcublas-dev  # [cuda_compiler_version != "None"]
+        - libcurand-dev  # [cuda_compiler_version != "None"]
       run:
         # Run dependencies follow the same logic as above.
         - libopenblas            # [s390x or ppc64le or aarch64 or arm64]
