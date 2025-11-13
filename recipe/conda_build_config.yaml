@@ -2,6 +2,7 @@ cxx_compiler:          # [win]
   - vs2019               # [win]
 cuda_compiler_version:
   - None
+  - 12.4               # [linux64 or win]
 python:
   - 3.10
   - "3.11"
