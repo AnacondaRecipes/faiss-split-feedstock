@@ -1,8 +1,13 @@
 cxx_compiler:          # [win]
   - vs2019               # [win]
+
+# CUDA builds are gated behind ANACONDA_ROCKET_ENABLE_CUDA to prevent automatic CI builds.
+# GPU variants must be built manually on dev instances with CUDA support.
+# This follows the same pattern as llama.cpp-feedstock.
 cuda_compiler_version:
-  - None
-  - 12.4               # [linux64 or win]
+  - None                                                                       # CPU variant - always built
+  - 12.4               # [ANACONDA_ROCKET_ENABLE_CUDA and (linux64 or win)]  # GPU variant - manual only
+
 python:
   - 3.10
   - "3.11"
