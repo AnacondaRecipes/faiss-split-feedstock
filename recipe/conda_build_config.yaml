@@ -6,7 +6,7 @@ cxx_compiler:          # [win]
 # This follows the same pattern as llama.cpp-feedstock.
 cuda_compiler_version:
   - None                                                                       # CPU variant - always built
-  - 12.4               # [ANACONDA_ROCKET_ENABLE_CUDA and (linux64 or win)]  # GPU variant - manual only
+  - 12.8               # [ANACONDA_ROCKET_ENABLE_CUDA and (linux64 or win)]  # GPU variant - manual only
 
 python:
   - 3.10
