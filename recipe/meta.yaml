@@ -145,6 +145,8 @@ outputs:
     build:
       string: {{ faiss_proc_type }}
     requirements:
+      host:
+        - python
     test:
       commands:
         - exit 0
