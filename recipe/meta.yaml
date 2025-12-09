@@ -267,6 +267,10 @@ outputs:
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
         - mkl-devel {{ mkl }}     # [blas_impl == "mkl"]
+        # CUDA dependencies for GPU builds (needed for SWIG wrapper compilation)
+        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
+        - cuda-cudart-dev  # [cuda_compiler_version != "None"]
+        - libcublas-dev  # [cuda_compiler_version != "None"]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
