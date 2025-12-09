@@ -270,8 +270,6 @@ outputs:
         # OpenBLAS + libgomp for osx-arm64, and linux-s390x and linux-ppc64le, and linux-aarch64.
         - openblas 0.3.21         # [s390x or ppc64le or aarch64 or arm64]
         # MKL for win, linux-64, and osx-64. All require intel-openmp.
-        - mkl {{ mkl }}           # [not (s390x or ppc64le or aarch64 or arm64)]
-        # mkl-devel seems to be required for win.
         - mkl-devel {{ mkl }}     # [win]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
