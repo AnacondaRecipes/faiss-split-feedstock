@@ -148,10 +148,6 @@ outputs:
       # include hash+buildnum so --skip-existing does not skip refreshed builds
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"
     requirements:
-      host:
-        - python
-      run:
-        - python
     test:
       commands:
         - exit 0
