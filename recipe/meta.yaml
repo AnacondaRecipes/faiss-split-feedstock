@@ -143,8 +143,7 @@ outputs:
   - name: faiss-proc
     version: 1.0.0
     build:
-      # include hash+buildnum so --skip-existing does not skip refreshed builds
-      string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"
+      string: {{ faiss_proc_type }}
     requirements:
     test:
       commands:
