@@ -95,6 +95,9 @@ source:
     - patches/0006-add-bigobj-to-swigfaiss-compile-options-on-windows.patch
     # ensure contrib.ivf_tools passes contiguous buffers to SWIG wrappers
     - patches/0013-fix-ivf-tools-range-search-preassigned.patch
+    # fix MSVC template disambiguation for CUDA builds (Windows only)
+    # see https://github.com/facebookresearch/faiss/issues/2985
+    - patches/0014-fix-MSVC-template-disambiguation.patch  # [win and cuda_compiler_version != "None"]
     # patch out use of non-portable GCC SIMD extension (Windows/MSVC only)
     # TODO: Regenerate for v1.12.0 - file code_distance-avx2.h not found
     # - patches/0007-dont-use-GCC-extension-that-doesn-t-work-on-MSVC.patch  # [win]
