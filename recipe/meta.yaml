@@ -195,7 +195,9 @@ outputs:
         # llvm-openmp is required only for osx
         - llvm-openmp  14.0.6     # [osx]
       host:
-        - python
+        # NOTE: Do NOT add python here - libfaiss is a C++ library and should not
+        # depend on python_abi. Adding python causes the package to be tied to a
+        # specific Python version, breaking installation for other Python versions.
         # BLAS dependencies based on variant
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
         - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
