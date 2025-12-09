@@ -276,7 +276,7 @@ outputs:
         - python
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
-        - {{ pin_compatible('numpy') }}
+        - numpy
         - packaging
         # bounds through run_exports
         - libopenblas            # [blas_impl == "openblas"]
