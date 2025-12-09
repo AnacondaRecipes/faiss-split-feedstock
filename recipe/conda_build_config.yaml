@@ -1,6 +1,16 @@
 cxx_compiler:          # [win]
   - vs2019               # [win]
 
+c_stdlib:
+  - sysroot                        # [linux]
+  - macosx_deployment_target       # [osx]
+  - vs                             # [win]
+
+c_stdlib_version:
+  - 2.28                           # [linux]
+  - 12.1                           # [osx]
+  - 2019                           # [win]
+
 # CUDA builds are gated behind ANACONDA_ROCKET_ENABLE_CUDA to prevent automatic CI builds.
 # GPU variants must be built manually on dev instances with CUDA support.
 # This follows the same pattern as llama.cpp-feedstock.
@@ -8,6 +18,7 @@ cuda_compiler_version:
   - None                                                                       # CPU variant - always built
   - 12.8               # [ANACONDA_ROCKET_ENABLE_CUDA and (linux64 or win)]  # GPU variant - manual only
 
+# python and numpy must be zipped together (per global conda_build_config.yaml zip_keys)
 python:
   - 3.10
   - "3.11"
@@ -16,6 +27,12 @@ python:
   # Python 3.13 builds currently fail on macOS arm64 (upstream SWIG bindings not ready),
   # so keep it enabled elsewhere but skip on osx for now.
   # Upstream issue: https://github.com/facebookresearch/faiss/issues/3985
+
+numpy:
+  - 2.1
+  - 2.1
+  - 2.1
+  - 2.1              # [not osx]
 
 blas_impl:
   - mkl              # [not (aarch64 or ppc64le or s390x or arm64)]
