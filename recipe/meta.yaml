@@ -279,7 +279,7 @@ outputs:
         - {{ pin_compatible('numpy') }}
         - packaging
         - libopenblas            # [s390x or ppc64le or aarch64 or arm64]
-        - mkl {{ mkl }}.*        # [not (s390x or ppc64le or aarch64 or arm64)]
+        - mkl                # [blas_impl == "openblas"]
         - llvm-openmp            # [osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
