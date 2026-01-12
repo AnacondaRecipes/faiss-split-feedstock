@@ -133,7 +133,7 @@ requirements:
     # libgomp is required for linux-64 alongside intel-omp.
     - libgomp                 # [linux]
     # llvm-openmp is required only for osx
-    - llvm-openmp  14.0.6     # [osx]
+    - llvm-openmp  {{ cxx_compiler_version }}     # [osx]
   host:
     - python
     # BLAS dependencies based on variant
@@ -193,7 +193,7 @@ outputs:
         # libgomp is required for linux-64 alongside intel-omp.
         - libgomp                 # [linux]
         # llvm-openmp is required only for osx
-        - llvm-openmp  14.0.6     # [osx]
+        - llvm-openmp  {{ cxx_compiler_version }}     # [osx]
       host:
         # NOTE: Do NOT add python here - libfaiss is a C++ library and should not
         # depend on python_abi. Adding python causes the package to be tied to a
@@ -259,7 +259,7 @@ outputs:
         # libgomp is required for linux-64 alongside intel-omp.
         - libgomp                 # [linux]
         # llvm-openmp is required only for osx
-        - llvm-openmp  14.0.6     # [osx]
+        - llvm-openmp  {{ cxx_compiler_version }}     # [osx]
       host:
         - python
         - wheel
