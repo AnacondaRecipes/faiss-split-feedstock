@@ -1,5 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Xuejun Kong <xkong@anaconda.com>
+From: Xianglong Kong <xkong@anaconda.com>
 Date: Tue, 14 Jan 2026 00:00:00 +0000
 Subject: [PATCH] Fix FAISS_DISABLE_CPU_FEATURES parsing
 
