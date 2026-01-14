@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Xuejun Kong <xkong@anaconda.com>
+Date: Tue, 14 Jan 2026 00:00:00 +0000
+Subject: [PATCH] Fix FAISS_DISABLE_CPU_FEATURES parsing
+
+The original code uses .split(", \t\n\r") which tries to split on the
+literal string ", \t\n\r" instead of splitting on any of those
+delimiter characters. This makes the environment variable ineffective
+when set to comma-separated values like "AVX2,AVX512,AVX512_SPR".
+
+Fix by using .replace(",", " ").split() which properly handles
+comma-separated and/or whitespace-separated feature names.
+
+diff --git a/faiss/python/loader.py b/faiss/python/loader.py
+--- a/faiss/python/loader.py
++++ b/faiss/python/loader.py
+@@ -55,7 +55,7 @@ def supported_instruction_sets():
+         supported = {k for k, v in __cpu_features__.items() if v}
+         if is_sve_supported():
+             supported.add("SVE")
+-        for f in os.getenv("FAISS_DISABLE_CPU_FEATURES", "").split(", \t\n\r"):
++        for f in os.getenv("FAISS_DISABLE_CPU_FEATURES", "").replace(",", " ").split():
+             supported.discard(f)
+         return supported
+
+@@ -76,7 +76,7 @@ def supported_instruction_sets():
+             result.add("AVX512_SPR")
+         if is_sve_supported():
+             result.add("SVE")
+-        for f in os.getenv("FAISS_DISABLE_CPU_FEATURES", "").split(", \t\n\r"):
++        for f in os.getenv("FAISS_DISABLE_CPU_FEATURES", "").replace(",", " ").split():
+             result.discard(f)
+         return result
+     return set()
