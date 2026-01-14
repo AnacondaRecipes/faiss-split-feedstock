@@ -3,7 +3,7 @@
 # This follows the same pattern as llama.cpp-feedstock.
 cuda_compiler_version:
   - None                                                                       # CPU variant - always built
-  - 12.8               # [ANACONDA_ROCKET_ENABLE_CUDA and (linux64 or win)]  # GPU variant - manual only
+  - 12.8               # [win or (linux and x86_64)]
 
 # Python 3.13 builds currently fail on macOS (upstream SWIG bindings not ready).
 # Upstream issue: https://github.com/facebookresearch/faiss/issues/3985
