@@ -5,6 +5,27 @@ cd ${SRC_DIR}
 # function for facilitate version comparison; cf. https://stackoverflow.com/a/37939589
 function version2int { echo "$@" | awk -F. '{ printf("%d%02d\n", $1, $2); }'; }
 
+declare -a EXTRA_CMAKE_ARGS
+# Cross builds (linux-aarch64, linux-ppc64le, linux-s390x, osx-arm64) link
+# against OpenBLAS instead of MKL. Force FindBLAS to use OpenBLAS so it does
+# not attempt to run detection binaries on the build host (which fails when
+# cross compiling). Also hand CMake the actual library path so it does not try
+# to execute detection binaries under emulation.
+if [[ "${target_platform}" == linux-aarch64 || "${target_platform}" == osx-arm64 ]]; then
+    EXTRA_CMAKE_ARGS+=(-DBLA_VENDOR=OpenBLAS)
+    if [[ "${target_platform}" == osx-arm64 ]]; then
+        EXTRA_CMAKE_ARGS+=(
+            -DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.dylib"
+            -DLAPACK_LIBRARIES="$PREFIX/lib/libopenblas.dylib"
+        )
+    else
+        EXTRA_CMAKE_ARGS+=(
+            -DBLAS_LIBRARIES="$PREFIX/lib/libopenblas.so"
+            -DLAPACK_LIBRARIES="$PREFIX/lib/libopenblas.so"
+        )
+    fi
+fi
+
 declare -a CUDA_CONFIG_ARGS
 if [ ${cuda_compiler_version} != "None" ]; then
     # for documentation see e.g.
@@ -41,24 +62,20 @@ else
     FAISS_ENABLE_GPU="OFF"
 fi
 
-if [[ $target_platform == osx-* ]] && [[ $CF_FAISS_BUILD == avx2 ]]; then
-    # OSX CI has no AVX2 support
-    BUILD_TESTING="OFF"
-elif [[ $target_platform == osx-arm64 ]]; then
-    # CI has no osx-arm64 machines; cannot test when only cross-compiling
-    BUILD_TESTING="OFF"
-else
-    BUILD_TESTING="ON"
-fi
+# Disable BUILD_TESTING to skip perf_tests which require gflags (v1.12.0+)
+# Tests are run separately via conda build's test phase
+BUILD_TESTING="OFF"
 
 # Build version depending on $CF_FAISS_BUILD (either "generic" or "avx2")
 cmake -G Ninja \
     ${CMAKE_ARGS} \
+    ${EXTRA_CMAKE_ARGS+"${EXTRA_CMAKE_ARGS[@]}"} \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_TESTING=${BUILD_TESTING} \
     -DFAISS_OPT_LEVEL=${CF_FAISS_BUILD} \
     -DFAISS_ENABLE_PYTHON=OFF \
     -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
+    -DFAISS_ENABLE_EXTRAS=OFF \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_LIBDIR=lib \
     ${CUDA_CONFIG_ARGS+"${CUDA_CONFIG_ARGS[@]}"} \

@@ -1,0 +1,74 @@
+From 6f8c7a0c7f6c2f2a63ccf35fb99e013a3a9f5dbe Mon Sep 17 00:00:00 2001
+From: Xianglong Kong <xkong@anaconda.com>
+Date: Sat, 8 Nov 2025 18:05:00 -0600
+Subject: [PATCH] Ensure IVF contrib helpers pass contiguous buffers
+
+The Python helpers in ``faiss.contrib.ivf_tools`` that wrap
+``search_preassigned``/``range_search_preassigned`` relied on whatever
+memory layout NumPy returned. On arm64 we hit a ``TypeError`` when the
+underlying SWIG binding could not coerce the inputs into the expected
+``faiss::idx_t*``/``float*`` arguments. Make all buffers explicitly
+contiguous with the correct dtype (uint8 for binary IVF, float32 otherwise),
+ensure the list ids/coarse distances are int64/float32, and cast the radius
+to a plain ``float`` before handing them to the SWIG layer.
+
+This matches the expectations of the C++ API and fixes the failing
+``tests/test_contrib.py::TestPreassigned::test_float`` on macOS arm64.
+---
+ contrib/ivf_tools.py | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/contrib/ivf_tools.py b/contrib/ivf_tools.py
+index 91e3d9d..ce022c4 100644
+--- a/contrib/ivf_tools.py
++++ b/contrib/ivf_tools.py
+@@ -41,11 +41,14 @@ def search_preassigned(index_ivf, xq, k, list_nos, coarse_dis=None):
+     if isinstance(index_ivf, faiss.IndexBinaryIVF):
+         d *= 8
+         dis_type = "int32"
++        xq = np.ascontiguousarray(xq, dtype="uint8")
+     else:
+         dis_type = "float32"
++        xq = np.ascontiguousarray(xq, dtype="float32")
+
+     assert d == index_ivf.d
+     assert list_nos.shape == (n, index_ivf.nprobe)
++    list_nos = np.ascontiguousarray(list_nos, dtype="int64")
+
+     # the coarse distances are used in IVFPQ with L2 distance and
+     # by_residual=True otherwise we provide dummy coarse_dis
+@@ -53,6 +56,7 @@ def search_preassigned(index_ivf, xq, k, list_nos, coarse_dis=None):
+         coarse_dis = np.zeros((n, index_ivf.nprobe), dtype=dis_type)
+     else:
+         assert coarse_dis.shape == (n, index_ivf.nprobe)
++    coarse_dis = np.ascontiguousarray(coarse_dis, dtype=dis_type)
+
+     return index_ivf.search_preassigned(xq, k, list_nos, coarse_dis)
+
+@@ -66,8 +70,10 @@ def range_search_preassigned(index_ivf, x, radius, list_nos, coarse_dis=None):
+     if isinstance(index_ivf, faiss.IndexBinaryIVF):
+         d *= 8
+         dis_type = "int32"
++        x = np.ascontiguousarray(x, dtype="uint8")
+     else:
+         dis_type = "float32"
++        x = np.ascontiguousarray(x, dtype="float32")
+
+     # the coarse distances are used in IVFPQ with L2 distance and
+     # by_residual=True otherwise we provide dummy coarse_dis
+@@ -78,12 +84,14 @@ def range_search_preassigned(index_ivf, x, radius, list_nos, coarse_dis=None):
+
+     assert d == index_ivf.d
+     assert list_nos.shape == (n, index_ivf.nprobe)
++    list_nos = np.ascontiguousarray(list_nos, dtype="int64")
++    coarse_dis = np.ascontiguousarray(coarse_dis, dtype=dis_type)
+
+     res = faiss.RangeSearchResult(n)
+     sp = faiss.swig_ptr
+
+     index_ivf.range_search_preassigned_c(
+-        n, sp(x), radius,
++        n, sp(x), float(radius),
+         sp(list_nos), sp(coarse_dis),
+         res
+     )

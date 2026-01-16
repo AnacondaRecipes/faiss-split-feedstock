@@ -41,6 +41,12 @@ copy _build_python_avx2\swigfaiss_avx2.py _build_python_generic\swigfaiss_avx2.p
 copy _build_python_avx2\_swigfaiss_avx2.pyd _build_python_generic\_swigfaiss_avx2.pyd
 if %ERRORLEVEL% neq 0 exit 1
 
+:: setup.py expects artifacts under a Release/ folder (historical Visual Studio layout)
+if not exist _build_python_generic\Release mkdir _build_python_generic\Release
+copy _build_python_generic\_swigfaiss.pyd _build_python_generic\Release\_swigfaiss.pyd
+copy _build_python_generic\_swigfaiss_avx2.pyd _build_python_generic\Release\_swigfaiss_avx2.pyd
+if %ERRORLEVEL% neq 0 exit 1
+
 :: Build actual python module.
 pushd _build_python_generic
 %PYTHON% -m pip install . -vvv --no-deps --no-build-isolation --ignore-installed
