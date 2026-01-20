@@ -2,6 +2,15 @@
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
 {% set faiss_proc_type = "cuda" if cuda_compiler_version != "None" else "cpu" %}
 
+# Build number offset for CUDA versions: ensures solver prefers newer CUDA versions
+# CPU: 0, CUDA 12.4: 124, CUDA 12.8: 128, CUDA 13.0: 130, etc.
+{% set build_number = 0 %}
+{% if cuda_compiler_version != "None" %}
+{% set cuda_major = cuda_compiler_version.split(".")[0] | int %}
+{% set cuda_minor = cuda_compiler_version.split(".")[1] | int %}
+{% set build_number = cuda_major * 10 + cuda_minor %}
+{% endif %}
+
 # headers for upstream-folders 'faiss/*.h', 'faiss/{impl,invlists,utils}/*.h',
 # see https://github.com/facebookresearch/faiss/blob/v{{ version }}/faiss/CMakeLists.txt;
 # gpu adds headers in 'faiss/gpu/*.h', 'faiss/gpu/{impl,utils}/*.(cu)?h'.
@@ -116,7 +125,7 @@ source:
     # NOTE: 0012-relax_test_ivf_train_2level.patch REMOVED - fixed upstream in v1.12.0
 
 build:
-  number: 0
+  number: {{ build_number }}
   # some MKL issue for py 3.8 on osx-64 
   skip: true  # [py<38 or (py==38 and osx and x86_64)]
   # Too many tests are failing on s390x.
