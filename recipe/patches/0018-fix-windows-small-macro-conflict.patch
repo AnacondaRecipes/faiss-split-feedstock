@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Xianglong Kong <xkong@anaconda.com>
+Date: Fri, 4 Apr 2026 00:00:00 +0000
+Subject: [PATCH] Fix Windows CUDA build: rename 'small' variable
+
+On Windows, 'small' is a macro defined as 'char' in rpcndr.h (Windows
+RPC headers). When nvcc compiles CUDA device code that includes Windows
+headers, 'bool small = ...' expands to 'bool char = ...' causing
+"invalid combination of type specifiers". Rename to 'isSmall' to avoid
+the macro conflict.
+
+---
+ faiss/gpu/utils/MergeNetworkWarp.cuh | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/faiss/gpu/utils/MergeNetworkWarp.cuh b/faiss/gpu/utils/MergeNetworkWarp.cuh
+--- a/faiss/gpu/utils/MergeNetworkWarp.cuh
++++ b/faiss/gpu/utils/MergeNetworkWarp.cuh
+@@ -105,13 +105,13 @@
+         V otherV = shfl_xor(v, 2 * L - 1);
+
+         // Whether we are the lesser thread in the exchange
+-        bool small = !(laneId & L);
++        bool isSmall = !(laneId & L);
+
+         if (Dir) {
+             // See the comment above how performing both of these
+             // comparisons in the warp seems to win out over the
+             // alternatives in practice
+-            bool s = small ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
++            bool s = isSmall ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
+             assign(s, k, otherK);
+             assign(s, v, otherV);
+
+@@ -129,14 +129,14 @@
+         V otherV = shfl_xor(v, stride);
+
+         // Whether we are the lesser thread in the exchange
+-        bool small = !(laneId & stride);
++        bool isSmall = !(laneId & stride);
+
+         if (Dir) {
+-            bool s = small ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
++            bool s = isSmall ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
+             assign(s, k, otherK);
+             assign(s, v, otherV);
+
+         } else {
+-            bool s = small ? Comp::lt(k, otherK) : Comp::gt(k, otherK);
++            bool s = isSmall ? Comp::lt(k, otherK) : Comp::gt(k, otherK);
+             assign(s, k, otherK);
+             assign(s, v, otherV);
+         }

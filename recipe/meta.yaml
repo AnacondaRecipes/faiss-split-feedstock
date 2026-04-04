@@ -131,6 +131,11 @@ source:
     - patches/0014-fix-MSVC-template-disambiguation.patch  # [win and cuda_compiler_version != "None"]
     # fix FAISS_DISABLE_CPU_FEATURES env var parsing (upstream bug: split on wrong delimiter)
     - patches/0015-fix-FAISS_DISABLE_CPU_FEATURES-parsing.patch
+    # fix MSVC linker error: __restrict mismatch in fvec_madd specializations
+    # upstream fix: https://github.com/facebookresearch/faiss/pull/4972
+    - patches/0017-fix-msvc-fvec-madd-restrict.patch  # [win]
+    # fix Windows CUDA build: 'small' macro conflict with rpcndr.h
+    - patches/0018-fix-windows-small-macro-conflict.patch  # [win and cuda_compiler_version != "None"]
     # patch out use of non-portable GCC SIMD extension (Windows/MSVC only)
     # TODO: Regenerate for v1.12.0 - file code_distance-avx2.h not found
     # - patches/0007-dont-use-GCC-extension-that-doesn-t-work-on-MSVC.patch  # [win]
