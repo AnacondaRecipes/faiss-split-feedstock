@@ -180,11 +180,8 @@ outputs:
   - name: faiss-proc
     version: 1.0.0
     build:
-      # Hash ensures unique builds, avoiding --skip-existing collisions in CI
-      string: "h{{ PKG_HASH }}_{{ faiss_proc_type }}"
-    requirements:
-      host:
-        - python
+      string: "{{ faiss_proc_type }}"
+      number: 0
     test:
       commands:
         - exit 0
