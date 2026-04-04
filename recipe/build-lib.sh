@@ -58,10 +58,6 @@ fi
 # Tests are run separately via conda build's test phase
 BUILD_TESTING="OFF"
 
-# Force C++17: v1.14.1 defaults to C++20 but supports C++17 codepath.
-# GCC 11.2 (aggregate default) has incomplete C++20 support.
-EXTRA_CMAKE_ARGS+=(-DCMAKE_CXX_STANDARD=17)
-
 # Build version depending on $CF_FAISS_BUILD (either "generic" or "avx2")
 cmake -G Ninja \
     ${CMAKE_ARGS} \

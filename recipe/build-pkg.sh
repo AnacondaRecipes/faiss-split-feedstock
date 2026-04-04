@@ -20,7 +20,6 @@ if [[ "${target_platform}" == "osx-64" ]]; then
       -DOpenMP_CXX_LIB_NAMES=libiomp5 \
       -DOpenMP_libiomp5_LIBRARY=$PREFIX/lib/libiomp5.dylib \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_STANDARD=17 \
       -DPython_EXECUTABLE="${PYTHON}" \
       -B _build_python_generic \
       faiss/python
@@ -31,7 +30,6 @@ else
       -Dfaiss_ROOT=_libfaiss_generic_stage/ \
       -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_STANDARD=17 \
       -DPython_EXECUTABLE="${PYTHON}" \
       -B _build_python_generic \
       faiss/python

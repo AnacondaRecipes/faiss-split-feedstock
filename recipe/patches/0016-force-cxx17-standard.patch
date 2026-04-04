@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Xianglong Kong <xkong@anaconda.com>
+Date: Fri, 4 Apr 2026 00:00:00 +0000
+Subject: [PATCH] Force C++17 standard instead of C++20
+
+Upstream v1.14.1 defaults to C++20, but MSVC 2019 (used for CUDA 12.x
+builds on Windows) and older GCC versions don't fully support C++20.
+Force C++17 which is sufficient for all faiss functionality. The cuVS
+codepath already uses C++17. This cannot be done via cmake -D flag
+because the CMakeLists.txt set() call overrides cache variables.
+
+---
+ CMakeLists.txt              | 6 +-----
+ faiss/python/CMakeLists.txt | 6 +-----
+ 2 files changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -53,11 +53,7 @@
+   LANGUAGES ${FAISS_LANGUAGES})
+ include(GNUInstallDirs)
+
+-if(FAISS_ENABLE_CUVS)
+-  set(CMAKE_CXX_STANDARD 17)
+-else()
+-  set(CMAKE_CXX_STANDARD 20)
+-endif()
++set(CMAKE_CXX_STANDARD 17)
+
+ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+diff --git a/faiss/python/CMakeLists.txt b/faiss/python/CMakeLists.txt
+--- a/faiss/python/CMakeLists.txt
++++ b/faiss/python/CMakeLists.txt
+@@ -10,11 +10,7 @@
+   HOMEPAGE_URL "https://github.com/facebookresearch/faiss"
+   LANGUAGES CXX)
+
+-if(FAISS_ENABLE_CUVS)
+-  set(CMAKE_CXX_STANDARD 17)
+-else()
+-  set(CMAKE_CXX_STANDARD 20)
+-endif()
++set(CMAKE_CXX_STANDARD 17)
+
+ find_package(SWIG REQUIRED COMPONENTS python)
+ include(${SWIG_USE_FILE})
