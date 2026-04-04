@@ -1,12 +1,12 @@
-# CUDA 13 CCCL headers require vs2022; CUDA 12 and CPU use vs2019
-# Pattern follows cupy-feedstock and llama.cpp-feedstock
+# faiss v1.14.1 requires C++20 on MSVC (template lambdas in simd_dispatch.h).
+# vs2019 doesn't support C++20 template lambdas; vs2022 required for all variants.
 c_compiler:                        # [win]
-  - vs2019                         # [win]
-  - vs2019                         # [win]
+  - vs2022                         # [win]
+  - vs2022                         # [win]
   - vs2022                         # [win]
 cxx_compiler:                      # [win]
-  - vs2019                         # [win]
-  - vs2019                         # [win]
+  - vs2022                         # [win]
+  - vs2022                         # [win]
   - vs2022                         # [win]
 
 cuda_compiler_version:
