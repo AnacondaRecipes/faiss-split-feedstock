@@ -1,4 +1,5 @@
-{% set version = "1.12.0" %}
+{% set version = "1.14.1" %}
+{% set build_number = 0 %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
 {% set faiss_proc_type = "cuda" if cuda_compiler_version != "None" else "cpu" %}
 
@@ -78,7 +79,7 @@ package:
 
 source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
-  sha256: 561376d1a44771bf1230fabeef9c81643468009b45a585382cf38d3a7a94990a
+  sha256: 0216d38d8c5c460433815b72d3cde6725eaa5d5770576277a2abc01ffc414d20
   patches:
     # NOTE: 0001-use-c-17.patch REMOVED - upstream now uses C++17 by default
     # downgrade to C++14 for resp. CUDA 11.1 on linux
@@ -116,8 +117,9 @@ source:
     # NOTE: 0012-relax_test_ivf_train_2level.patch REMOVED - fixed upstream in v1.12.0
 
 build:
-  number: 0
-  # some MKL issue for py 3.8 on osx-64 
+  number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
+  number: {{ build_number }}        # [cuda_compiler_version == "None"]
+  # some MKL issue for py 3.8 on osx-64
   skip: true  # [py<38 or (py==38 and osx and x86_64)]
   # Too many tests are failing on s390x.
   skip: true  # [linux and (s390x or ppc64le)]
@@ -174,6 +176,8 @@ outputs:
     script: build-lib-{{ CF_FAISS_BUILD }}.sh   # [not win]
     script: build-lib-{{ CF_FAISS_BUILD }}.bat  # [win]
     build:
+      number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
+      number: {{ build_number }}        # [cuda_compiler_version == "None"]
       # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
@@ -245,6 +249,8 @@ outputs:
     script: build-pkg.sh          # [not win]
     script: build-pkg.bat         # [win]
     build:
+      number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
+      number: {{ build_number }}        # [cuda_compiler_version == "None"]
       # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
       string: "py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
