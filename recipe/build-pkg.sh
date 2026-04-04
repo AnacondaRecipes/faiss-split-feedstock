@@ -50,6 +50,7 @@ if [[ "${target_platform}" == *-64 ]]; then
             -DFAISS_OPT_LEVEL=avx2 \
             -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=17 \
             -DPython_EXECUTABLE="${PYTHON}" \
             -B _build_python_avx2 \
             faiss/python
@@ -61,6 +62,7 @@ if [[ "${target_platform}" == *-64 ]]; then
             -DFAISS_OPT_LEVEL=avx2 \
             -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=17 \
             -DPython_EXECUTABLE="${PYTHON}" \
             -B _build_python_avx2 \
             faiss/python

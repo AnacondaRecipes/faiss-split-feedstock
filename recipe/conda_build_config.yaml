@@ -1,9 +1,11 @@
-# CUDA 13 CCCL headers require vs2022; CUDA 12 uses vs2019
+# CUDA 13 CCCL headers require vs2022; CUDA 12 and CPU use vs2019
 # Pattern follows cupy-feedstock and llama.cpp-feedstock
 c_compiler:                        # [win]
   - vs2019                         # [win]
+  - vs2019                         # [win]
   - vs2022                         # [win]
 cxx_compiler:                      # [win]
+  - vs2019                         # [win]
   - vs2019                         # [win]
   - vs2022                         # [win]
 
