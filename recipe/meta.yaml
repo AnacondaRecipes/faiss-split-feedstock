@@ -328,26 +328,12 @@ outputs:
         {% set skip = "_not_a_real_test" %}
         # flaky double encoding test that occasionally fails
         {% set skips = "test_RQ6x8" %}
-        # TestComputeGT switches between CPU & GPU implementation depending on availability;
-        # GPU device detection (on win) currently seems broken in CUDA, and segfaults the test suite
-        {% set skips = skips + " or TestComputeGT" %}                                      # [win]
-        # test relies on linux-isms
-        {% set skips = skips + " or (test_contrib and test_checkpoint)" %}                 # [win]
-        # test_OIVFPQ has floating point precision issues on Windows (expected OPQ to improve accuracy but sometimes gets 0.968 vs 0.971)
-        {% set skips = skips + " or (OPQRelativeAccuracy and test_OIVFPQ)" %}              # [win]
-        # test_hnsw has non-deterministic results on Windows (IndexBinaryFromFloat vs IndexBinaryHNSW produce different results)
-        {% set skips = skips + " or (TestHNSW and test_hnsw)" %}                           # [win]
         # two failing tests on on aarch (test_index_accuracy & test_index_accuracy2)
         {% set skips = skips + " or (test_residual_quantizer and test_index_accuracy)" %}  # [aarch64 or ppc64le]
         # test_ivf_train_2level fails randomly on linux-64. Upstream recently increased the threshold. Tried that, but still failing occasionally.
         {% set skips = skips + " or test_ivf_train_2level" %}  # [linux and x86_64]
-        # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold, e.g: (AssertionError: 0.10208797454833984 not less than 0.09767270088195801)
-        # These use openblas while upstream mentions MKL ensures the best speed.
-        {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64] 
-        # external module example is not packaged upstream; skip until it becomes available
-        {% set skips = skips + " or external_module_test" %}
-        # Binary IVF preassignment helpers currently fail without upstream patch
-        {% set skips = skips + " or (TestPreassigned and test_binary)" %}
+        # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold
+        {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64]
         # Panorama tests have floating point precision issues on Windows (v1.14.1 new feature)
         {% set skips = skips + " or test_flat_panorama or test_refine_panorama" %}  # [win]
         # IVFFastScan merge test has non-deterministic results on Windows
