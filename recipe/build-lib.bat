@@ -19,8 +19,8 @@ if "%cuda_compiler_version%"=="None" (
         REM CUDA 13.x: drops Maxwell/Pascal/Volta, adds Blackwell sub-arches
         set "CMAKE_CUDA_ARCHS=75-real;80-real;86-real;89-real;90-real;100;103;120"
     ) else (
-        REM CUDA 12.8+: adds Blackwell sm_100
-        set "CMAKE_CUDA_ARCHS=50-real;60-real;70-real;75-real;80-real;86-real;89-real;90-real;100"
+        REM CUDA 12.9: skip Blackwell (sm_100) on Windows due to clusterlaunchcontrol.h PTX asm bug
+        set "CMAKE_CUDA_ARCHS=50-real;60-real;70-real;75-real;80-real;86-real;89-real;90"
     )
 
     REM turn off _extremely_ noisy nvcc warnings
