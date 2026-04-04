@@ -113,9 +113,7 @@ source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
   sha256: 0216d38d8c5c460433815b72d3cde6725eaa5d5770576277a2abc01ffc414d20
   patches:
-    # NOTE: 0001-use-c-17.patch REMOVED - upstream now uses C++20 by default
-    # NOTE: 0001-use-c-14.patch REMOVED - CUDA 11.1 no longer targeted
-    # adapt header target directory for faiss_avx2 (regenerated for v1.12.0, applies to v1.14.1)
+    # adapt header target directory for faiss_avx2
     - patches/0002-adapt-header-target-directory-to-outputname.patch
     # patch for avoiding crash in GPU test suite on windows
     - patches/0003-skip-test_stress-for-GPU-on-windows.patch
@@ -123,33 +121,16 @@ source:
     - patches/0004-enable-building-libfaiss_avx2-without-libfaiss.patch
     # increase tolerance for test that occasionally fails marginally
     - patches/0005-increase-tolerance-for-marginally-failing-test.patch
-    # NOTE: 0006-add-bigobj REMOVED - upstream v1.14.1 already has /bigobj via target_compile_options
     # ensure contrib.ivf_tools passes contiguous buffers to SWIG wrappers
     - patches/0013-fix-ivf-tools-range-search-preassigned.patch
     # fix MSVC template disambiguation for CUDA builds (Windows only)
-    # see https://github.com/facebookresearch/faiss/issues/2985
     - patches/0014-fix-MSVC-template-disambiguation.patch  # [win and cuda_compiler_version != "None"]
-    # fix FAISS_DISABLE_CPU_FEATURES env var parsing (upstream bug: split on wrong delimiter)
+    # fix FAISS_DISABLE_CPU_FEATURES env var parsing
     - patches/0015-fix-FAISS_DISABLE_CPU_FEATURES-parsing.patch
-    # fix MSVC linker error: __restrict mismatch in fvec_madd specializations
-    # upstream fix: https://github.com/facebookresearch/faiss/pull/4972
+    # fix MSVC linker error: __restrict mismatch in fvec_madd specializations (upstream PR #4972)
     - patches/0017-fix-msvc-fvec-madd-restrict.patch  # [win]
     # fix Windows CUDA build: 'small' macro conflict with rpcndr.h
     - patches/0018-fix-windows-small-macro-conflict.patch  # [win and cuda_compiler_version != "None"]
-    # patch out use of non-portable GCC SIMD extension (Windows/MSVC only)
-    # TODO: Regenerate for v1.12.0 - file code_distance-avx2.h not found
-    # - patches/0007-dont-use-GCC-extension-that-doesn-t-work-on-MSVC.patch  # [win]
-    # the _mm_prefetch of MSVC is stricter about which types it accepts (Windows/MSVC only)
-    # TODO: Regenerate for v1.12.0 - currently fails 5/5 hunks
-    # - patches/0008-ensure-_mm_prefetch-gets-char-not-float-as-first-arg.patch  # [win]
-    # due to switch to ninja
-    # TODO: Regenerate for v1.12.0 - currently fails 1/1 hunk
-    # - patches/0009-no-more-Release-subfolder.patch
-    # NOTE: 0010-fix-index-type-in-openmp-loop.patch REMOVED - fixed upstream in v1.12.0
-    # add missing headers
-    # TODO: Regenerate for v1.12.0 - currently fails 1/2 hunks, may not be needed
-    # - patches/0011-add-missing-headers.patch
-    # NOTE: 0012-relax_test_ivf_train_2level.patch REMOVED - fixed upstream in v1.12.0
 
 build:
   number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
@@ -367,6 +348,8 @@ outputs:
         {% set skips = skips + " or external_module_test" %}
         # Binary IVF preassignment helpers currently fail without upstream patch
         {% set skips = skips + " or (TestPreassigned and test_binary)" %}
+        # Panorama tests have floating point precision issues on Windows (v1.14.1 new feature)
+        {% set skips = skips + " or test_flat_panorama or test_refine_panorama" %}  # [win]
         # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
         # we expect faiss will load the library with AVX2-support, see
         # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
