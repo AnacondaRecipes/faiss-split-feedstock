@@ -113,10 +113,9 @@ source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
   sha256: 0216d38d8c5c460433815b72d3cde6725eaa5d5770576277a2abc01ffc414d20
   patches:
-    # NOTE: 0001-use-c-17.patch REMOVED - upstream now uses C++17 by default
-    # downgrade to C++14 for resp. CUDA 11.1 on linux
-    - patches/0001-use-c-14.patch  # [linux and (cuda_compiler_version == "11.1")]
-    # adapt header target directory for faiss_avx2 (regenerated for v1.12.0)
+    # NOTE: 0001-use-c-17.patch REMOVED - upstream now uses C++20 by default
+    # NOTE: 0001-use-c-14.patch REMOVED - CUDA 11.1 no longer targeted
+    # adapt header target directory for faiss_avx2 (regenerated for v1.12.0, applies to v1.14.1)
     - patches/0002-adapt-header-target-directory-to-outputname.patch
     # patch for avoiding crash in GPU test suite on windows
     - patches/0003-skip-test_stress-for-GPU-on-windows.patch
