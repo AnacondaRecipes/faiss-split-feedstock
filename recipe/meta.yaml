@@ -124,8 +124,6 @@ source:
     # increase tolerance for test that occasionally fails marginally
     - patches/0005-increase-tolerance-for-marginally-failing-test.patch
     # NOTE: 0006-add-bigobj REMOVED - upstream v1.14.1 already has /bigobj via target_compile_options
-    # Force C++17 (upstream defaults to C++20 which MSVC 2019 doesn't fully support)
-    - patches/0016-force-cxx17-standard.patch
     # ensure contrib.ivf_tools passes contiguous buffers to SWIG wrappers
     - patches/0013-fix-ivf-tools-range-search-preassigned.patch
     # fix MSVC template disambiguation for CUDA builds (Windows only)
