@@ -368,6 +368,7 @@ outputs:
       skip: true  # [py==38 and osx and x86_64]
     requirements:
       run:
+        - __cuda
         - faiss ={{ version }}=*_cuda
     test:
       imports:
