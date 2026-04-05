@@ -334,8 +334,6 @@ outputs:
         {% set skips = skips + " or test_ivf_train_2level" %}  # [linux and x86_64]
         # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold
         {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64]
-        # Binary IVF preassignment test fails with TypeError (patch 0013 insufficient for v1.14.1)
-        {% set skips = skips + " or (TestPreassigned and test_binary)" %}
         # Panorama tests have floating point precision issues on Windows (v1.14.1 new feature)
         {% set skips = skips + " or test_flat_panorama or test_refine_panorama" %}  # [win]
         # IVFFastScan merge test has non-deterministic results on Windows

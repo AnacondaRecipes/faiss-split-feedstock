@@ -68,7 +68,7 @@ index 91e3d9d..ce022c4 100644
 
      index_ivf.range_search_preassigned_c(
 -        n, sp(x), radius,
-+        n, sp(x), float(radius),
++        n, sp(x), int(radius) if isinstance(index_ivf, faiss.IndexBinaryIVF) else float(radius),
          sp(list_nos), sp(coarse_dis),
          res
      )
