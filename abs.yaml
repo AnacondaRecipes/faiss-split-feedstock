@@ -1,0 +1,3 @@
+# Increase timeout for CUDA builds which compile for multiple GPU architectures
+# Default is 7200 seconds (2 hours), which is insufficient for Windows CUDA builds
+task_timeout: 14400  # 4 hours
