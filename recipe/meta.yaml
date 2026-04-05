@@ -228,7 +228,6 @@ outputs:
         - libcublas-dev  # [cuda_compiler_version != "None"]
         - libcurand-dev  # [cuda_compiler_version != "None"]
       run:
-        - __cuda  # [cuda_compiler_version != "None"]
         # Run dependencies based on variant
         - libopenblas                            # [blas_impl == "openblas"]
         - mkl {{ mkl }}.*                        # [blas_impl == "mkl"]
@@ -298,7 +297,6 @@ outputs:
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
-        - __cuda  # [cuda_compiler_version != "None"]
         - python
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
@@ -370,7 +368,6 @@ outputs:
       skip: true  # [py==38 and osx and x86_64]
     requirements:
       run:
-        - __cuda
         - faiss ={{ version }}=*_cuda
     test:
       imports:
