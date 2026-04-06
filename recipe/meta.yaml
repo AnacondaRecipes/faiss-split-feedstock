@@ -148,7 +148,7 @@ requirements:
     - patch  # [not win]
     - m2-patch  # [win]
     - cmake
-    - ninja
+    - ninja-base
     # libgomp is required for linux-64 alongside intel-omp.
     - libgomp                 # [linux]
     # llvm-openmp is required only for osx
@@ -207,7 +207,7 @@ outputs:
         - {{ compiler('cxx') }}
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - cmake
-        - ninja
+        - ninja-base
         # libgomp is required for linux-64 alongside intel-omp.
         - libgomp                 # [linux]
         # llvm-openmp is required only for osx
@@ -275,7 +275,7 @@ outputs:
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - swig
         - cmake
-        - ninja
+        - ninja-base
         # libgomp is required for linux-64 alongside intel-omp.
         - libgomp                 # [linux]
         # llvm-openmp is required only for osx
