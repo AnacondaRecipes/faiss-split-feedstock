@@ -8,22 +8,26 @@ if "%cuda_compiler_version%"=="None" (
 ) else (
     set "FAISS_ENABLE_GPU=ON"
 
-    REM for documentation see e.g.
-    REM docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#building-for-maximum-compatibility
-    REM docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#ptxas-options-gpu-name
-    REM docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list
+    REM CUDA arch lists - version dependent
+    REM For -real vs. -virtual, see cmake.org/cmake/help/latest/prop_tgt/CUDA_ARCHITECTURES.html
+    REM Last entry uses PTX JIT for forward compatibility
 
-    REM for -real vs. -virtual, see cmake.org/cmake/help/latest/prop_tgt/CUDA_ARCHITECTURES.html
-    REM this is to support PTX JIT compilation; see first link above or cf.
-    REM devblogs.nvidia.com/cuda-pro-tip-understand-fat-binaries-jit-caching
+    REM Extract major version for comparison
+    for /f "tokens=1 delims=." %%a in ("%cuda_compiler_version%") do set "CUDA_MAJOR=%%a"
 
-    set "CMAKE_CUDA_ARCHS=53-real;62-real;72-real;75-real;80-real;86"
+    if !CUDA_MAJOR! GEQ 13 (
+        REM CUDA 13.x: drops Maxwell/Pascal/Volta, adds Blackwell sub-arches
+        set "CMAKE_CUDA_ARCHS=75-real;80-real;86-real;89-real;90-real;100;103;120"
+    ) else (
+        REM CUDA 12.9: skip Blackwell (sm_100) on Windows due to clusterlaunchcontrol.h PTX asm bug
+        set "CMAKE_CUDA_ARCHS=50-real;60-real;70-real;75-real;80-real;86-real;89-real;90"
+    )
+
     REM turn off _extremely_ noisy nvcc warnings
     set "CUDAFLAGS=-w"
 
     set CUDA_CONFIG_ARGS=-DCMAKE_CUDA_ARCHITECTURES=!CMAKE_CUDA_ARCHS!
-    REM cmake does not generate output for the call below; echo some info
-    echo Set up extra cmake-args: CUDA_CONFIG_ARGS=!CUDA_CONFIG_ARGS!
+    echo CUDA architectures: !CMAKE_CUDA_ARCHS!
 )
 
 :: Build faiss.dll depending on $CF_FAISS_BUILD (either "generic" or "avx2")

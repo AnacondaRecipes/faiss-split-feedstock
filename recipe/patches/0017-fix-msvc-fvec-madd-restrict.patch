@@ -1,0 +1,90 @@
+From 3f7938924d611b38adfdb00b7da27f24531decb7 Mon Sep 17 00:00:00 2001
+From: Gergely Szilvasy <gsz@meta.com>
+Date: Wed, 25 Mar 2026 04:22:33 -0700
+Subject: [PATCH] Fix MSVC link failure: remove __restrict from fvec_madd
+ specializations (#4972)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Summary:
+Pull Request resolved: https://github.com/facebookresearch/faiss/pull/4972
+
+The template declaration of fvec_madd in distances.h has no __restrict
+qualifiers, but the AVX2/AVX512/ARM_SVE specializations in the per-SIMD
+TUs added __restrict to their parameters. On GCC/Clang this is harmless
+(they don't mangle __restrict), but on MSVC __restrict is a type qualifier
+that affects name mangling, causing unresolved symbol errors at link time.
+
+Fix by removing __restrict from the specialization definitions to match
+the declaration. The __restrict qualifier on function parameters is a
+compiler optimization hint only — removing it does not change semantics
+or correctness, and the compiler can still infer aliasing properties.
+
+Fixes https://github.com/facebookresearch/faiss/issues/4857
+
+Reviewed By: subhadeepkaran
+
+Differential Revision: D97800166
+
+fbshipit-source-id: dad361c77c14b78b3b61d31b6c99e8136e92d71e
+---
+ faiss/utils/simd_impl/distances_arm_sve.cpp | 6 +++---
+ faiss/utils/simd_impl/distances_avx2.cpp    | 6 +++---
+ faiss/utils/simd_impl/distances_avx512.cpp  | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/faiss/utils/simd_impl/distances_arm_sve.cpp b/faiss/utils/simd_impl/distances_arm_sve.cpp
+index face1a7d13..71b0b35ce6 100644
+--- a/faiss/utils/simd_impl/distances_arm_sve.cpp
++++ b/faiss/utils/simd_impl/distances_arm_sve.cpp
+@@ -19,10 +19,10 @@ namespace faiss {
+ template <>
+ void fvec_madd<SIMDLevel::ARM_SVE>(
+         const size_t n,
+-        const float* __restrict a,
++        const float* a,
+         const float bf,
+-        const float* __restrict b,
+-        float* __restrict c) {
++        const float* b,
++        float* c) {
+     const size_t lanes = static_cast<size_t>(svcntw());
+     const size_t lanes2 = lanes * 2;
+     const size_t lanes3 = lanes * 3;
+diff --git a/faiss/utils/simd_impl/distances_avx2.cpp b/faiss/utils/simd_impl/distances_avx2.cpp
+index e77eb6613a..4080ea8208 100644
+--- a/faiss/utils/simd_impl/distances_avx2.cpp
++++ b/faiss/utils/simd_impl/distances_avx2.cpp
+@@ -28,10 +28,10 @@ namespace faiss {
+ template <>
+ void fvec_madd<SIMDLevel::AVX2>(
+         const size_t n,
+-        const float* __restrict a,
++        const float* a,
+         const float bf,
+-        const float* __restrict b,
+-        float* __restrict c) {
++        const float* b,
++        float* c) {
+     //
+     const size_t n8 = n / 8;
+     const size_t n_for_masking = n % 8;
+diff --git a/faiss/utils/simd_impl/distances_avx512.cpp b/faiss/utils/simd_impl/distances_avx512.cpp
+index 06675ac38f..c0649122c5 100644
+--- a/faiss/utils/simd_impl/distances_avx512.cpp
++++ b/faiss/utils/simd_impl/distances_avx512.cpp
+@@ -22,10 +22,10 @@ namespace faiss {
+ template <>
+ void fvec_madd<SIMDLevel::AVX512>(
+         const size_t n,
+-        const float* __restrict a,
++        const float* a,
+         const float bf,
+-        const float* __restrict b,
+-        float* __restrict c) {
++        const float* b,
++        float* c) {
+     const size_t n16 = n / 16;
+     const size_t n_for_masking = n % 16;
+ 
