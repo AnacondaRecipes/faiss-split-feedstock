@@ -149,19 +149,17 @@ requirements:
     - m2-patch  # [win]
     - cmake
     - ninja-base
-    # libgomp is required for linux-64 alongside intel-omp.
-    - libgomp  # [blas_impl != "mkl" and linux]
-    # llvm-openmp is required only for osx or win-arm64
-    - llvm-openmp  {{ cxx_compiler_version }}     # [osx or (win and arm64)]
-    - intel-openmp  # [blas_impl == "mkl"]
-    - vcomp14       # [blas_impl != "mkl" and (win and x86_64)]
+    - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
+    - intel-openmp  # [blas_impl == "mkl" and (linux or win)]
   host:
     - python
     # BLAS dependencies based on variant
     - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
+    - libgomp                        # [blas_impl == "openblas" and linux]
+    - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
     - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
     - mkl {{ mkl }}                  # [blas_impl == "mkl"]
-    - intel-openmp                   # [blas_impl == "mkl" and (linux64 or win)]
+    - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
 
 outputs:
   # A meta-package to select CPU or GPU build for faiss.
@@ -210,19 +208,18 @@ outputs:
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - cmake
         - ninja-base
-        # libgomp is required for linux-64 alongside intel-omp.
-        - libgomp                 # [linux]
-        # llvm-openmp is required only for osx
-        - llvm-openmp  {{ cxx_compiler_version }}     # [osx]
+        - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
       host:
         # NOTE: Do NOT add python here - libfaiss is a C++ library and should not
         # depend on python_abi. Adding python causes the package to be tied to a
         # specific Python version, breaking installation for other Python versions.
         # BLAS dependencies based on variant
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
+        - libgomp                        # [blas_impl == "openblas" and linux]
+        - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
         - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
         - mkl {{ mkl }}                  # [blas_impl == "mkl"]
-        - intel-openmp                   # [blas_impl == "mkl" and (linux64 or win)]
+        - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
         # CUDA dependencies for GPU builds
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
         - cuda-cudart-dev  # [cuda_compiler_version != "None"]
@@ -232,9 +229,11 @@ outputs:
       run:
         # Run dependencies based on variant
         - libopenblas                            # [blas_impl == "openblas"]
+        - libgomp                                # [blas_impl == "openblas" and linux]
+        - vcomp14                                # [blas_impl == "openblas" and (win and x86_64)]
         - mkl {{ mkl }}.*                        # [blas_impl == "mkl"]
         - {{ pin_compatible('intel-openmp') }}   # [blas_impl == "mkl" and (linux64 or win)]
-        - llvm-openmp  # [osx]
+        - llvm-openmp  # [blas_impl == "openblas" and osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
@@ -278,10 +277,7 @@ outputs:
         - swig
         - cmake
         - ninja-base
-        # libgomp is required for linux-64 alongside intel-omp.
-        - libgomp                 # [linux]
-        # llvm-openmp is required only for osx
-        - llvm-openmp  {{ cxx_compiler_version }}     # [osx]
+        - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
       host:
         - python
         - wheel
@@ -290,7 +286,10 @@ outputs:
         - pip
         - numpy  {{ numpy }}
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
-        # MKL for win, linux-64, and osx-64. All require intel-openmp.
+        - libgomp                        # [blas_impl == "openblas" and linux]
+        - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
+        # MKL is used on win and linux x86_64; macOS uses OpenBLAS to avoid
+        # mixing llvm-openmp with intel-openmp.
         - mkl-devel {{ mkl }}     # [blas_impl == "mkl"]
         # CUDA dependencies for GPU builds (needed for SWIG wrapper compilation)
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
@@ -306,8 +305,10 @@ outputs:
         - packaging
         # bounds through run_exports
         - libopenblas            # [blas_impl == "openblas"]
+        - libgomp                # [blas_impl == "openblas" and linux]
+        - vcomp14                # [blas_impl == "openblas" and (win and x86_64)]
         - mkl                    # [blas_impl == "mkl"]
-        - llvm-openmp            # [osx]
+        - llvm-openmp            # [blas_impl == "openblas" and osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]

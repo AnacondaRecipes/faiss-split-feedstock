@@ -29,8 +29,8 @@ numpy:
   - 2.1              # [not osx]
 
 blas_impl:
-  - mkl              # [not (aarch64 or arm64)]
-  - openblas         # [aarch64 or arm64]
+  - mkl              # [not (aarch64 or arm64 or osx)]
+  - openblas         # [aarch64 or arm64 or osx]
 
 zip_keys:                          # [win]
   -                                # [win]
