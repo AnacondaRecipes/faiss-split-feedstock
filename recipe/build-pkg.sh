@@ -17,6 +17,16 @@ if [[ "${target_platform}" == osx-* ]]; then
         -DOpenMP_CXX_LIB_NAMES=omp
         -DOpenMP_omp_LIBRARY="$PREFIX/lib/libomp.dylib"
     )
+elif [[ "${target_platform}" == linux-* && "${blas_impl}" == "mkl" ]]; then
+    OPENMP_CXX_FLAG="-fopenmp"
+    if [[ "${CXX:-}" == *icpx* || "${CXX:-}" == *icpc* || "${CXX:-}" == *icc* ]]; then
+        OPENMP_CXX_FLAG="-qopenmp"
+    fi
+    OPENMP_CMAKE_ARGS+=(
+        -DOpenMP_CXX_FLAGS="${OPENMP_CXX_FLAG}"
+        -DOpenMP_CXX_LIB_NAMES=iomp5
+        -DOpenMP_iomp5_LIBRARY="$PREFIX/lib/libiomp5.so"
+    )
 fi
 
 # Build vanilla version (no avx2), see build-lib.sh

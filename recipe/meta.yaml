@@ -161,15 +161,15 @@ requirements:
     - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
 
 outputs:
-  # A meta-package to select CPU or GPU build for faiss.
-  - name: faiss-proc
-    version: 1.0.0
-    build:
-      string: "{{ faiss_proc_type }}"
-      number: 0
-    test:
-      commands:
-        - exit 0
+  # # A meta-package to select CPU or GPU build for faiss.
+  # - name: faiss-proc
+  #   version: 1.0.0
+  #   build:
+  #     string: "{{ faiss_proc_type }}"
+  #     number: 0
+  #   test:
+  #     commands:
+  #       - exit 0
 
   # build two separate C++ libs, one generic, and one for AVX2 on x86_64
   {% set CF_FAISS_BUILD_OPTS = ["generic"] %}
@@ -287,8 +287,8 @@ outputs:
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
         - libgomp                        # [blas_impl == "openblas" and linux]
         - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
-        # MKL is used on win and linux x86_64; macOS uses OpenBLAS to avoid
-        # mixing llvm-openmp with intel-openmp.
+        # MKL is used on win x86_64. Unix builds use OpenBLAS so FAISS's
+        # compiler OpenMP linkage stays in the GNU/LLVM runtime family.
         - mkl-devel {{ mkl }}     # [blas_impl == "mkl"]
         # CUDA dependencies for GPU builds (needed for SWIG wrapper compilation)
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
@@ -351,30 +351,30 @@ outputs:
         # - pytest faiss/gpu/test/
 
   # for compatibility with (& ease of migration from) existing packages in the pytorch channel
-  - name: faiss-cpu
-    build:
-      skip: true  # [cuda_compiler_version != "None"]
-      # some MKL issue for py 3.8 on osx-64
-      skip: true  # [py==38 and osx and x86_64]
-    requirements:
-      run:
-        - faiss ={{ version }}=*_cpu
-    test:
-      imports:
-        - faiss
+  # - name: faiss-cpu
+  #   build:
+  #     skip: true  # [cuda_compiler_version != "None"]
+  #     # some MKL issue for py 3.8 on osx-64
+  #     skip: true  # [py==38 and osx and x86_64]
+  #   requirements:
+  #     run:
+  #       - faiss ={{ version }}=*_cpu
+  #   test:
+  #     imports:
+  #       - faiss
 
-  - name: faiss-gpu
-    build:
-      skip: true  # [cuda_compiler_version == "None"]
-      # some MKL issue for py 3.8 on osx-64
-      skip: true  # [py==38 and osx and x86_64]
-    requirements:
-      run:
-        - __cuda
-        - faiss ={{ version }}=*_cuda
-    test:
-      imports:
-        - faiss
+  # - name: faiss-gpu
+  #   build:
+  #     skip: true  # [cuda_compiler_version == "None"]
+  #     # some MKL issue for py 3.8 on osx-64
+  #     skip: true  # [py==38 and osx and x86_64]
+  #   requirements:
+  #     run:
+  #       - __cuda
+  #       - faiss ={{ version }}=*_cuda
+  #   test:
+  #     imports:
+  #       - faiss
 
 about:
   home: https://github.com/facebookresearch/faiss
