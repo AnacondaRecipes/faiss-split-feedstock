@@ -2,11 +2,7 @@
 # vs2019 doesn't support C++20 template lambdas; vs2022 required for all variants.
 c_compiler:                        # [win]
   - vs2022                         # [win]
-  - vs2022                         # [win]
-  - vs2022                         # [win]
 cxx_compiler:                      # [win]
-  - vs2022                         # [win]
-  - vs2022                         # [win]
   - vs2022                         # [win]
 
 cuda_compiler_version:
@@ -31,9 +27,3 @@ numpy:
 blas_impl:
   - mkl              # [not (aarch64 or arm64 or osx)]
   - openblas         # [aarch64 or arm64 or osx]
-
-zip_keys:                          # [win]
-  -                                # [win]
-    - cuda_compiler_version        # [win]
-    - c_compiler                   # [win]
-    - cxx_compiler                 # [win]
