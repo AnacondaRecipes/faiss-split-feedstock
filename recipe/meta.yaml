@@ -287,9 +287,9 @@ outputs:
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
         - libgomp                        # [blas_impl == "openblas" and linux]
         - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
-        # MKL is used on win x86_64. Unix builds use OpenBLAS so FAISS's
-        # compiler OpenMP linkage stays in the GNU/LLVM runtime family.
+        # MKL builds link the SWIG extensions against libiomp5 directly.
         - mkl-devel {{ mkl }}     # [blas_impl == "mkl"]
+        - intel-openmp            # [blas_impl == "mkl" and (linux or win)]
         # CUDA dependencies for GPU builds (needed for SWIG wrapper compilation)
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
         - cuda-cudart-dev  # [cuda_compiler_version != "None"]
@@ -307,6 +307,7 @@ outputs:
         - libgomp                # [blas_impl == "openblas" and linux]
         - vcomp14                # [blas_impl == "openblas" and (win and x86_64)]
         - mkl                    # [blas_impl == "mkl"]
+        - {{ pin_compatible('intel-openmp') }}   # [blas_impl == "mkl" and (linux or win)]
         - llvm-openmp            # [blas_impl == "openblas" and osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
