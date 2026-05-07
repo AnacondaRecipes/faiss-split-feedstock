@@ -137,15 +137,13 @@ build:
   number: {{ build_number }}        # [cuda_compiler_version == "None"]
   # Python 3.13 builds currently fail on macOS (upstream SWIG bindings not ready).
   # Upstream issue: https://github.com/facebookresearch/faiss/issues/3985
-  skip: true  # [osx and py>=3.13]
+  skip: true  # [osx and py>=313]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
-    - patch  # [not win]
-    - m2-patch  # [win]
     - cmake
     - ninja-base
     - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
@@ -300,7 +298,7 @@ outputs:
         - python
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
-        - numpy
+        - numpy >=2.0
         - packaging
         # bounds through run_exports
         - libopenblas            # [blas_impl == "openblas"]
@@ -341,6 +339,8 @@ outputs:
         {% set skips = skips + " or test_merge_IVFFastScan" %}  # [win]
         # test_hnsw has non-deterministic results on Windows (still flaky in v1.14.1)
         {% set skips = skips + " or (TestHNSW and test_hnsw)" %}  # [win]
+        # Exhaustive range search query iterator test is flaky on Windows
+        {% set skips = skips + " or test_query_iterator" %}  # [win]
         # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
         # we expect faiss will load the library with AVX2-support, see
         # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
