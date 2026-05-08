@@ -157,6 +157,7 @@ requirements:
     - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
     - mkl {{ mkl }}                  # [blas_impl == "mkl"]
     - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
+    - numpy {{ numpy }}
 
 outputs:
   # # A meta-package to select CPU or GPU build for faiss.
