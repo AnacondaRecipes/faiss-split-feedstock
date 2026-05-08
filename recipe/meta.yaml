@@ -281,7 +281,7 @@ outputs:
         - packaging
         - setuptools
         - pip
-        - numpy >=2.0
+        - numpy {{ numpy }}
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
         - libgomp                        # [blas_impl == "openblas" and linux]
         - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
