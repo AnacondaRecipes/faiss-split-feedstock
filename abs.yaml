@@ -2,5 +2,7 @@
 # Default is 7200 seconds (2 hours), which is insufficient for Windows CUDA builds
 task_timeout: 14400  # 4 hours
 
+staging_channel_upload_target: openmp-mutex-rework-4
+
 channels:
-  - build
+  - https://staging.continuum.io/pbp/openmp-mutex-rework-4
