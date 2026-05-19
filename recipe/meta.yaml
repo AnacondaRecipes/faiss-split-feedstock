@@ -135,9 +135,6 @@ source:
 build:
   number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
   number: {{ build_number }}        # [cuda_compiler_version == "None"]
-  # Python 3.13 builds currently fail on macOS (upstream SWIG bindings not ready).
-  # Upstream issue: https://github.com/facebookresearch/faiss/issues/3985
-  skip: true  # [osx and py>=313]
 
 requirements:
   build:
