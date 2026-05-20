@@ -149,7 +149,7 @@ requirements:
     - python
     # BLAS dependencies based on variant
     - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
-    - libgomp                        # [blas_impl == "openblas" and linux]
+    - libgomp 15.2.0                        # [blas_impl == "openblas" and linux]
     - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
     - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
     - mkl {{ mkl }}                  # [blas_impl == "mkl"]
