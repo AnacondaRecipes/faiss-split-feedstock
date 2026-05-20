@@ -6,12 +6,28 @@ cd ${SRC_DIR}
 function version2int { echo "$@" | awk -F. '{ printf("%d%02d\n", $1, $2); }'; }
 
 declare -a EXTRA_CMAKE_ARGS
-# Cross builds (linux-aarch64, linux-ppc64le, linux-s390x, osx-arm64) link
-# against OpenBLAS instead of MKL. Force FindBLAS to use OpenBLAS so it does
-# not attempt to run detection binaries on the build host (which fails when
-# cross compiling). Also hand CMake the actual library path so it does not try
-# to execute detection binaries under emulation.
-if [[ "${target_platform}" == linux-aarch64 || "${target_platform}" == osx-arm64 ]]; then
+if [[ "${target_platform}" == osx-* ]]; then
+    EXTRA_CMAKE_ARGS+=(
+        -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp"
+        -DOpenMP_CXX_LIB_NAMES=omp
+        -DOpenMP_omp_LIBRARY="$PREFIX/lib/libomp.dylib"
+    )
+elif [[ "${target_platform}" == linux-* && "${blas_impl}" == "mkl" ]]; then
+    OPENMP_CXX_FLAG="-fopenmp"
+    if [[ "${CXX:-}" == *icpx* || "${CXX:-}" == *icpc* || "${CXX:-}" == *icc* ]]; then
+        OPENMP_CXX_FLAG="-qopenmp"
+    fi
+    EXTRA_CMAKE_ARGS+=(
+        -DOpenMP_CXX_FLAGS="${OPENMP_CXX_FLAG}"
+        -DOpenMP_CXX_LIB_NAMES=iomp5
+        -DOpenMP_iomp5_LIBRARY="$PREFIX/lib/libiomp5.so"
+    )
+fi
+
+# Force FindBLAS to use the selected OpenBLAS variant instead of probing other
+# BLAS implementations. Hand CMake the actual library path so cross builds do
+# not try to execute detection binaries under emulation.
+if [[ "${blas_impl}" == "openblas" ]]; then
     EXTRA_CMAKE_ARGS+=(-DBLA_VENDOR=OpenBLAS)
     if [[ "${target_platform}" == osx-arm64 ]]; then
         EXTRA_CMAKE_ARGS+=(
