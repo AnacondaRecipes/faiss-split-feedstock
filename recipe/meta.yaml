@@ -296,6 +296,9 @@ outputs:
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
         - python
+        # hard __cuda gate keeps the CUDA build (higher build number) from being
+        # selected on GPU-less hosts; bare on purpose - cuda-version pins the version
+        - __cuda  # [gpu_variant == "cuda"]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
         - numpy >=2.0
