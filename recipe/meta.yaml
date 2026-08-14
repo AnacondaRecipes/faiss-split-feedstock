@@ -1,69 +1,85 @@
 {% set version = "1.15.0" %}
-{% set build_number = 1 %}
-{% set faiss_proc_type = '"cuda" if cuda_compiler_version != "None" else "cpu"' %}
-{% set headers = '[
-    'AutoTune.h', 'Clustering.h', 'IVFlib.h', 'Index.h', 'Index2Layer.h',
-    'IndexAdditiveQuantizer.h', 'IndexAdditiveQuantizerFastScan.h', 'IndexBinary.h',
-    'IndexBinaryFlat.h', 'IndexBinaryFromFloat.h', 'IndexBinaryHNSW.h', 'IndexBinaryHash.h',
-    'IndexBinaryIVF.h', 'IndexFastScan.h', 'IndexFlat.h', 'IndexFlatCodes.h', 'IndexHNSW.h',
-    'IndexIDMap.h', 'IndexIVF.h', 'IndexIVFAdditiveQuantizer.h', 'IndexIVFAdditiveQuantizerFastScan.h',
-    'IndexIVFFastScan.h', 'IndexIVFFlat.h', 'IndexIVFFlatPanorama.h',
-    'IndexIVFIndependentQuantizer.h', 'IndexIVFPQ.h', 'IndexIVFPQFastScan.h', 'IndexIVFPQR.h',
-    'IndexIVFRaBitQ.h', 'IndexIVFRaBitQFastScan.h', 'IndexIVFSpectralHash.h',
-    'IndexLSH.h', 'IndexLattice.h', 'IndexNNDescent.h', 'IndexNSG.h', 'IndexNeuralNetCodec.h',
-    'IndexPQ.h', 'IndexPQFastScan.h', 'IndexPreTransform.h',
-    'IndexRaBitQ.h', 'IndexRaBitQFastScan.h', 'IndexRefine.h', 'IndexReplicas.h',
-    'IndexRowwiseMinMax.h', 'IndexScalarQuantizer.h', 'IndexShards.h', 'IndexShardsIVF.h',
-    'MatrixStats.h', 'MetaIndexes.h', 'MetricType.h', 'VectorTransform.h',
-    'clone_index.h', 'factory_tools.h', 'index_factory.h', 'index_io.h',
-    'impl/AdditiveQuantizer.h', 'impl/AuxIndexStructures.h', 'impl/ClusteringInitialization.h',
-    'impl/CodePacker.h', 'impl/CodePackerRaBitQ.h',
-    'impl/DistanceComputer.h', 'impl/FaissAssert.h', 'impl/FaissException.h',
-    'impl/FastScanDistancePostProcessing.h', 'impl/HNSW.h',
-    'impl/IDSelector.h', 'impl/LocalSearchQuantizer.h', 'impl/LookupTableScaler.h',
+{% set build_number = 0 %}
+# see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
+{% set faiss_proc_type = "cuda" if cuda_compiler_version != "None" else "cpu" %}
+
+# CPU headers = the FAISS_HEADERS list in faiss/CMakeLists.txt at v{{ version }}
+# (all installed unconditionally on every platform); gpu/ headers come from
+# FAISS_GPU_HEADERS in faiss/gpu/CMakeLists.txt. Regenerate on version bumps.
+{% set headers = [
+    'AutoTune.h', 'Clustering.h', 'SuperKMeans.h', 'IVFlib.h', 'Index.h', 'Index2Layer.h',
+    'IndexAdditiveQuantizer.h', 'IndexBinary.h', 'IndexBinaryFlat.h', 'IndexBinaryFromFloat.h',
+    'IndexBinaryHNSW.h', 'IndexBinaryHash.h', 'IndexBinaryIVF.h', 'IndexEDEN.h', 'IndexFlat.h',
+    'IndexFlatCodes.h', 'IndexHNSW.h', 'IndexIDMap.h', 'IndexIVF.h',
+    'IndexIVFAdditiveQuantizer.h', 'IndexIVFIndependentQuantizer.h', 'IndexIVFFlat.h',
+    'IndexIVFFlatPanorama.h', 'IndexIVFPQ.h', 'IndexIVFEDEN.h', 'IndexIVFFastScan.h',
+    'IndexIVFAdditiveQuantizerFastScan.h', 'IndexIVFPQFastScan.h', 'IndexIVFPQR.h',
+    'IndexIVFRaBitQ.h', 'IndexIVFRaBitQFastScan.h', 'IndexIVFSpectralHash.h', 'IndexLSH.h',
+    'IndexNeuralNetCodec.h', 'IndexLattice.h', 'IndexNNDescent.h', 'IndexNSG.h', 'IndexPQ.h',
+    'IndexFastScan.h', 'IndexAdditiveQuantizerFastScan.h', 'IndexPQFastScan.h',
+    'IndexPreTransform.h', 'IndexRefine.h', 'IndexReplicas.h', 'IndexRaBitQ.h',
+    'IndexRaBitQFastScan.h', 'IndexRowwiseMinMax.h', 'IndexScalarQuantizer.h', 'IndexShards.h',
+    'IndexShardsIVF.h', 'MatrixStats.h', 'MetaIndexes.h', 'MetricType.h', 'VectorTransform.h',
+    'clone_index.h', 'index_factory.h', 'factory_tools.h', 'index_io.h', 'impl/AdSampling.h',
+    'impl/AdditiveQuantizer.h', 'impl/AuxIndexStructures.h', 'impl/InvertedListScannerStats.h',
+    'impl/VisitedTable.h', 'impl/ClusteringInitialization.h', 'impl/ClusteringHelpers.h',
+    'impl/CodePacker.h', 'impl/CodePackerRaBitQ.h', 'impl/IDSelector.h',
+    'impl/DistanceComputer.h', 'impl/EDENQuantizer.h', 'impl/FaissAssert.h',
+    'impl/FaissException.h', 'impl/HNSW.h', 'impl/hnsw/LockVector.h',
+    'impl/hnsw/MinimaxHeap.h', 'impl/LocalSearchQuantizer.h',
+    'impl/ProductAdditiveQuantizer.h', 'impl/fast_scan/LookupTableScaler.h',
+    'impl/fast_scan/FastScanDistancePostProcessing.h', 'impl/maybe_owned_vector.h',
     'impl/NNDescent.h', 'impl/NSG.h', 'impl/Panorama.h', 'impl/PanoramaStats.h',
-    'impl/PolysemousTraining.h', 'impl/ProductAdditiveQuantizer.h',
+    'impl/PdxLayout.h', 'impl/PolysemousTraining.h', 'impl/polysemous_training/dispatch.h',
     'impl/ProductQuantizer-inl.h', 'impl/ProductQuantizer.h', 'impl/Quantizer.h',
-    'impl/RaBitQStats.h', 'impl/RaBitQUtils.h',
-    'impl/RaBitQuantizer.h', 'impl/RaBitQuantizerMultiBit.h',
+    'impl/RaBitQuantizer.h', 'impl/RaBitQuantizerMultiBit.h', 'impl/RaBitQUtils.h',
     'impl/ResidualQuantizer.h', 'impl/ResultHandler.h', 'impl/ScalarQuantizer.h',
-    'impl/ThreadedIndex-inl.h', 'impl/ThreadedIndex.h', 'impl/VisitedTable.h',
-    'impl/expanded_scanners.h', 'impl/index_read_utils.h',
-    'impl/io.h', 'impl/io_macros.h', 'impl/kmeans1d.h', 'impl/lattice_Zn.h',
-    'impl/mapped_io.h', 'impl/maybe_owned_vector.h',
-    'impl/platform_macros.h', 'impl/pq4_fast_scan.h',
+    'impl/expanded_scanners.h', 'impl/scalar_quantizer/codecs.h',
+    'impl/scalar_quantizer/distance_computers.h', 'impl/scalar_quantizer/quantizers.h',
+    'impl/scalar_quantizer/scanners.h', 'impl/scalar_quantizer/similarities.h',
+    'impl/scalar_quantizer/sq-dispatch.h', 'impl/scalar_quantizer/training.h',
+    'impl/ThreadedIndex-inl.h', 'impl/ThreadedIndex.h', 'impl/index_read_utils.h', 'impl/io.h',
+    'impl/io_macros.h', 'impl/mapped_io.h', 'impl/kmeans1d.h', 'impl/lattice_Zn.h',
+    'impl/platform_macros.h', 'impl/fast_scan/accumulate_loops.h',
+    'impl/fast_scan/accumulate_loops_512.h', 'impl/fast_scan/dispatching.h',
+    'impl/fast_scan/fast_scan.h', 'impl/fast_scan/decompose_qbs.h',
+    'impl/fast_scan/kernels_simd256.h', 'impl/fast_scan/kernels_simd512.h',
+    'impl/fast_scan/rabitq_dispatching.h', 'impl/fast_scan/rabitq_result_handler.h',
+    'impl/residual_quantizer_encode_steps.h', 'impl/simd_dispatch.h',
+    'impl/fast_scan/simd_result_handlers.h', 'impl/zerocopy_io.h',
     'impl/pq_code_distance/pq_code_distance-inl.h',
-    'impl/residual_quantizer_encode_steps.h',
-    'impl/scalar_quantizer/codecs.h', 'impl/scalar_quantizer/distance_computers.h',
-    'impl/scalar_quantizer/quantizers.h', 'impl/scalar_quantizer/scanners.h',
-    'impl/scalar_quantizer/similarities.h', 'impl/scalar_quantizer/sq-dispatch.h',
-    'impl/scalar_quantizer/training.h',
-    'impl/simd_dispatch.h', 'impl/simd_result_handlers.h',
-    'impl/zerocopy_io.h',
-    'invlists/BlockInvertedLists.h', 'invlists/DirectMap.h', 'invlists/InvertedLists.h',
-    'invlists/InvertedListsIOHook.h',
-    'utils/AlignedTable.h', 'utils/Heap.h', 'utils/NeuralNet.h', 'utils/WorkerThread.h',
-    'utils/bf16.h', 'utils/distances.h', 'utils/distances_dispatch.h',
-    'utils/extra_distances-inl.h', 'utils/extra_distances.h',
-    'utils/fp16-fp16c.h', 'utils/fp16-inl.h', 'utils/fp16.h',
-    'utils/hamming-inl.h', 'utils/hamming.h',
-    'utils/ordered_key_value.h', 'utils/partitioning.h', 'utils/prefetch.h',
-    'utils/pq_code_distance.h', 'utils/quantize_lut.h',
-    'utils/rabitq_simd.h', 'utils/random.h', 'utils/simd_levels.h',
-    'utils/simdlib.h', 'utils/simdlib_avx2.h', 'utils/simdlib_emulated.h',
-    'utils/simdlib_neon.h', 'utils/sorting.h', 'utils/utils.h',
-    'utils/distances_fused/avx512.h', 'utils/distances_fused/distances_fused.h',
-    'utils/distances_fused/simdlib_based.h',
-    'utils/approx_topk/approx_topk.h', 'utils/approx_topk/avx2-inl.h',
-    'utils/approx_topk/generic.h', 'utils/approx_topk/mode.h',
-    'utils/approx_topk_hamming/approx_topk_hamming.h',
-    'utils/transpose/transpose-avx2-inl.h', 'utils/transpose/transpose-avx512-inl.h',
-    'utils/hamming_distance/common.h', 'utils/hamming_distance/generic-inl.h',
-    'utils/hamming_distance/hamdis-inl.h', 'utils/hamming_distance/neon-inl.h',
-    'utils/hamming_distance/avx2-inl.h', 'utils/hamming_distance/avx512-inl.h',
-    'utils/simd_impl/distances_autovec-inl.h', 'utils/simd_impl/distances_sse-inl.h',
-] + (not win) * [
-    'invlists/OnDiskInvertedLists.h'
+    'impl/pq_code_distance/pq_code_distance-avx2.h',
+    'impl/pq_code_distance/pq_code_distance-avx512.h',
+    'impl/pq_code_distance/pq_code_distance-generic.h',
+    'impl/pq_code_distance/IVFPQ_QueryTables.h', 'impl/pq_code_distance/IVFPQScanner_impl.h',
+    'impl/pq_code_distance/PQDistanceComputer_impl.h', 'invlists/BlockInvertedLists.h',
+    'invlists/DirectMap.h', 'invlists/InvertedLists.h', 'invlists/InvertedListsIOHook.h',
+    'invlists/OnDiskInvertedLists.h', 'utils/AlignedTable.h', 'utils/bf16.h', 'utils/Heap.h',
+    'utils/NeuralNet.h', 'utils/WorkerThread.h', 'utils/distances.h',
+    'utils/extra_distances.h', 'utils/fp16-fp16c.h', 'utils/fp16-inl.h', 'utils/fp16-arm.h',
+    'utils/fp16.h', 'utils/hamming-inl.h', 'utils/hamming.h', 'utils/ordered_key_value.h',
+    'utils/partitioning.h', 'utils/prefetch.h', 'utils/quantize_lut.h', 'utils/rabitq_simd.h',
+    'utils/random.h', 'utils/sorting.h', 'impl/simdlib/simdlib.h',
+    'impl/simdlib/simdlib_dispatch.h', 'impl/simdlib/simdlib_avx2.h',
+    'impl/simdlib/simdlib_avx512.h', 'impl/simdlib/simdlib_emulated.h',
+    'impl/simdlib/simdlib_neon.h', 'impl/simdlib/simdlib_ppc64.h', 'utils/utils.h',
+    'utils/simd_levels.h', 'utils/distances_fused/distances_fused.h',
+    'utils/distances_fused/simdlib_kernel-inl.h', 'impl/approx_topk/approx_topk.h',
+    'impl/approx_topk/generic.h', 'impl/approx_topk/rq_beam_search_tab.h',
+    'impl/approx_topk/rq_beam_search_tab-inl.h', 'impl/approx_topk/simdlib256-inl.h',
+    'utils/approx_topk_hamming/approx_topk_hamming.h', 'utils/transpose/transpose-avx2-inl.h',
+    'utils/transpose/transpose-avx512-inl.h', 'utils/hamming_distance/common.h',
+    'utils/hamming_distance/hamming_computer.h',
+    'utils/hamming_distance/hamming_computer-avx2.h',
+    'utils/hamming_distance/hamming_computer-avx512.h',
+    'utils/hamming_distance/hamming_computer-avx512_spr.h',
+    'utils/hamming_distance/hamming_computer-generic.h',
+    'utils/hamming_distance/hamming_computer-neon.h',
+    'utils/hamming_distance/hamming_computer-rvv.h', 'utils/simd_impl/distances_autovec-inl.h',
+    'utils/simd_impl/distances_simdlib256.h', 'utils/hamming_distance/hamming_impl.h',
+    'utils/simd_impl/exhaustive_L2sqr_blas_cmax.h', 'utils/simd_impl/super_kmeans_dispatch.h',
+    'utils/simd_impl/super_kmeans_kernels.h', 'utils/simd_impl/IVFFlatScanner-inl.h',
+    'utils/simd_impl/distances_sse-inl.h'
 ] + (cuda_compiler_version != "None") * [
     'gpu/GpuAutoTune.h', 'gpu/GpuCloner.h', 'gpu/GpuClonerOptions.h', 'gpu/GpuDistance.h',
     'gpu/GpuFaissAssert.h', 'gpu/GpuIcmEncoder.h', 'gpu/GpuIndex.h', 'gpu/GpuIndexBinaryFlat.h',
@@ -95,31 +111,8 @@
     'gpu/utils/Timer.h', 'gpu/utils/Transpose.cuh', 'gpu/utils/WarpPackedBits.cuh',
     'gpu/utils/WarpSelectKernel.cuh', 'gpu/utils/WarpShuffles.cuh',
     'gpu/utils/blockselect/BlockSelectImpl.cuh', 'gpu/utils/warpselect/WarpSelectImpl.cuh'
-]' %}
-{% set CF_FAISS_BUILD_OPTS = [
-  "generic"
 ] %}
-{% set CF_FAISS_BUILD_OPTS = '["avx2"] + CF_FAISS_BUILD_OPTS' %}  # [x86_64]
-{% set libext = '"_avx2" if CF_FAISS_BUILD == "avx2" else ""' %}
-{% set skip = "_not_a_real_test" %}
-{% set skips = "test_RQ6x8" %}
-{% set skips = 'skips + " or (test_residual_quantizer and test_index_accuracy)"' %}  # [aarch64 or ppc64le]
-{% set skips = skips + " or test_ivf_train_2level" %}  # [linux and x86_64]
-{% set skips = 'skips + " or (TestAdd and test_add)"' %}  # [osx]
-{% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64]
-{% set skips = skips + " or test_flat_panorama or test_refine_panorama" %}  # [win]
-{% set skips = skips + " or test_merge_IVFFastScan" %}  # [win]
-{% set skips = 'skips + " or (TestMerge2 and test_merge_IndexFastScan_even_M)"' %}  # [win]
-{% set skips = 'skips + " or (TestHNSW and test_hnsw)"' %}  # [win]
-{% set skips = skips + " or test_query_iterator" %}  # [win]
 
-# see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
-# headers for upstream-folders 'faiss/*.h', 'faiss/{impl,invlists,utils}/*.h',
-# see https://github.com/facebookresearch/faiss/blob/v{{ version }}/faiss/CMakeLists.txt;
-# gpu adds headers in 'faiss/gpu/*.h', 'faiss/gpu/{impl,utils}/*.(cu)?h'.
-# generated by:
-# ls faiss/{.,impl,invlists,utils} | grep -E "h$"
-# ls faiss/gpu/{.,impl,impl/scan,utils,utils/blockselect,utils/warpselect} | grep -E "h$"
 package:
   name: faiss-split
   version: {{ version }}
@@ -142,14 +135,12 @@ source:
     - patches/0014-fix-MSVC-template-disambiguation.patch  # [win and cuda_compiler_version != "None"]
     # fix FAISS_DISABLE_CPU_FEATURES env var parsing
     - patches/0015-fix-FAISS_DISABLE_CPU_FEATURES-parsing.patch
-    # fix MSVC linker error: __restrict mismatch in fvec_madd specializations (upstream PR #4972)
-    - patches/0017-fix-msvc-fvec-madd-restrict.patch  # [win]
     # fix Windows CUDA build: 'small' macro conflict with rpcndr.h
     - patches/0018-fix-windows-small-macro-conflict.patch  # [win and cuda_compiler_version != "None"]
 
 build:
-  number: 0
-  number: {{ build_number }}  # [cuda_compiler_version == "None"]
+  number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
+  number: {{ build_number }}        # [cuda_compiler_version == "None"]
 
 requirements:
   build:
@@ -158,17 +149,17 @@ requirements:
     - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
     - cmake
     - ninja-base
-    - llvm-openmp  {{ cxx_compiler_version }}  # [blas_impl == "openblas" and osx]
+    - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
     - intel-openmp  # [blas_impl == "mkl" and (linux or win)]
   host:
     - python
     # BLAS dependencies based on variant
     - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
-    - libgomp 15.2.0  # [blas_impl == "openblas" and linux]
-    - vcomp14  # [blas_impl == "openblas" and (win and x86_64)]
-    - mkl-devel {{ mkl }}  # [blas_impl == "mkl"]
-    - mkl {{ mkl }}  # [blas_impl == "mkl"]
-    - intel-openmp  # [blas_impl == "mkl" and (linux or win)]
+    - libgomp 15.2.0                        # [blas_impl == "openblas" and linux]
+    - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
+    - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
+    - mkl {{ mkl }}                  # [blas_impl == "mkl"]
+    - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
     - numpy {{ numpy }}
 
 outputs:
@@ -181,22 +172,30 @@ outputs:
   #   test:
   #     commands:
   #       - exit 0
+
   # build two separate C++ libs, one generic, and one for AVX2 on x86_64
+  {% set CF_FAISS_BUILD_OPTS = ["generic"] %}
+  {% set CF_FAISS_BUILD_OPTS = ["avx2"] + CF_FAISS_BUILD_OPTS %}  # [x86_64]
+  {% for CF_FAISS_BUILD in CF_FAISS_BUILD_OPTS %}
   # order libfaiss last in loop due to conda/conda-build#4090; libfaiss-avx2
   # is only used for faiss and not important enough to work-around for this bug
+  {% if CF_FAISS_BUILD == "generic" %}
   - name: libfaiss
+  {% else %}
   - name: libfaiss-avx2
+  {% endif %}
+  {% set libext = "_avx2" if CF_FAISS_BUILD == "avx2" else "" %}
     # only one main build script build-lib.{bat|sh}, with the only difference
     # through CF_FAISS_BUILD={generic,avx2} that's set in the wrappers
-    script: build-lib-{{ CF_FAISS_BUILD }}.sh  # [not win]
+    script: build-lib-{{ CF_FAISS_BUILD }}.sh   # [not win]
     script: build-lib-{{ CF_FAISS_BUILD }}.bat  # [win]
     build:
       number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
-      number: {{ build_number }}  # [cuda_compiler_version == "None"]
+      number: {{ build_number }}        # [cuda_compiler_version == "None"]
       # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
-      string: h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}  # [cuda_compiler_version == "None"]
-      string: cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}  # [cuda_compiler_version != "None"]
+      string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
+      string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
       run_exports:
         # faiss follows SemVer, so restrict packages built with libfaiss to use
         # at least the same version at runtime, but below the next major version.
@@ -210,18 +209,18 @@ outputs:
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
         - cmake
         - ninja-base
-        - llvm-openmp  {{ cxx_compiler_version }}  # [blas_impl == "openblas" and osx]
+        - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
       host:
         # NOTE: Do NOT add python here - libfaiss is a C++ library and should not
         # depend on python_abi. Adding python causes the package to be tied to a
         # specific Python version, breaking installation for other Python versions.
         # BLAS dependencies based on variant
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
-        - libgomp  # [blas_impl == "openblas" and linux]
-        - vcomp14  # [blas_impl == "openblas" and (win and x86_64)]
-        - mkl-devel {{ mkl }}  # [blas_impl == "mkl"]
-        - mkl {{ mkl }}  # [blas_impl == "mkl"]
-        - intel-openmp  # [blas_impl == "mkl" and (linux or win)]
+        - libgomp                        # [blas_impl == "openblas" and linux]
+        - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
+        - mkl-devel {{ mkl }}            # [blas_impl == "mkl"]
+        - mkl {{ mkl }}                  # [blas_impl == "mkl"]
+        - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
         # CUDA dependencies for GPU builds
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
         - cuda-cudart-dev  # [cuda_compiler_version != "None"]
@@ -230,40 +229,47 @@ outputs:
         - libcurand-dev  # [cuda_compiler_version != "None"]
       run:
         # Run dependencies based on variant
-        - libopenblas  # [blas_impl == "openblas"]
-        - libgomp  # [blas_impl == "openblas" and linux]
-        - vcomp14  # [blas_impl == "openblas" and (win and x86_64)]
-        - mkl {{ mkl }}.*  # [blas_impl == "mkl"]
-        - {{ pin_compatible('intel-openmp') }}  # [blas_impl == "mkl" and (linux64 or win)]
+        - libopenblas                            # [blas_impl == "openblas"]
+        - libgomp                                # [blas_impl == "openblas" and linux]
+        - vcomp14                                # [blas_impl == "openblas" and (win and x86_64)]
+        - mkl {{ mkl }}.*                        # [blas_impl == "mkl"]
+        - {{ pin_compatible('intel-openmp') }}   # [blas_impl == "mkl" and (linux64 or win)]
         - llvm-openmp  # [blas_impl == "openblas" and osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
         - faiss-proc =*={{ faiss_proc_type }}
+
     test:
       commands:
         # shared
-        - test -f $PREFIX/lib/libfaiss{{ libext }}.so  # [linux]
-        - test -f $PREFIX/lib/libfaiss{{ libext }}.dylib  # [osx]
-        - if not exist %LIBRARY_BIN%\faiss{{ libext }}.dll exit 1  # [win]
+        - test -f $PREFIX/lib/libfaiss{{ libext }}.so               # [linux]
+        - test -f $PREFIX/lib/libfaiss{{ libext }}.dylib            # [osx]
+        - if not exist %LIBRARY_BIN%\faiss{{ libext }}.dll exit 1   # [win]
         # On windows, faiss.lib is an "import library";
         # Deleting it breaks the faiss-builds
-        - if not exist %LIBRARY_LIB%\faiss{{ libext }}.lib exit 1  # [win]
+        - if not exist %LIBRARY_LIB%\faiss{{ libext }}.lib exit 1   # [win]
+
         # absence of static libraries
-        - test ! -f $PREFIX/lib/libfaiss{{ libext }}.a  # [not win]
+        - test ! -f $PREFIX/lib/libfaiss{{ libext }}.a              # [not win]
+
         # headers
+        {% for each_header in headers %}
         - test -f $PREFIX/include/faiss{{ libext }}/{{ each_header }} || (echo "{{ each_header }} not found" && exit 1)  # [unix]
-        - if not exist %LIBRARY_INC%\faiss{{ libext }}\{{ "\\".join(each_header.split("/")) }} exit 1  # [win]
+        - if not exist %LIBRARY_INC%\faiss{{ libext }}\{{ "\\".join(each_header.split("/")) }} exit 1                    # [win]
+        {% endfor %}
+  {% endfor %}
+
   - name: faiss
-    script: build-pkg.sh  # [not win]
-    script: build-pkg.bat  # [win]
+    script: build-pkg.sh          # [not win]
+    script: build-pkg.bat         # [win]
     build:
       number: {{ build_number + 100 }}  # [cuda_compiler_version != "None"]
-      number: {{ build_number }}  # [cuda_compiler_version == "None"]
+      number: {{ build_number }}        # [cuda_compiler_version == "None"]
       # some MKL issue for py 3.8 on osx-64
       skip: true  # [py==38 and osx and x86_64]
-      string: py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}  # [cuda_compiler_version == "None"]
-      string: py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}  # [cuda_compiler_version != "None"]
+      string: "py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [cuda_compiler_version == "None"]
+      string: "py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [cuda_compiler_version != "None"]
     requirements:
       build:
         - {{ compiler('c') }}
@@ -272,7 +278,7 @@ outputs:
         - swig
         - cmake
         - ninja-base
-        - llvm-openmp  {{ cxx_compiler_version }}  # [blas_impl == "openblas" and osx]
+        - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
       host:
         - python
         - wheel
@@ -281,11 +287,11 @@ outputs:
         - pip
         - numpy {{ numpy }}
         - openblas-devel {{ openblas }}  # [blas_impl == "openblas"]
-        - libgomp  # [blas_impl == "openblas" and linux]
-        - vcomp14  # [blas_impl == "openblas" and (win and x86_64)]
+        - libgomp                        # [blas_impl == "openblas" and linux]
+        - vcomp14                        # [blas_impl == "openblas" and (win and x86_64)]
         # MKL builds link the SWIG extensions against libiomp5 directly.
-        - mkl-devel {{ mkl }}  # [blas_impl == "mkl"]
-        - intel-openmp  # [blas_impl == "mkl" and (linux or win)]
+        - mkl-devel {{ mkl }}     # [blas_impl == "mkl"]
+        - intel-openmp            # [blas_impl == "mkl" and (linux or win)]
         # CUDA dependencies for GPU builds (needed for SWIG wrapper compilation)
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
         - cuda-cudart-dev  # [cuda_compiler_version != "None"]
@@ -299,16 +305,17 @@ outputs:
         - numpy >=2.0
         - packaging
         # bounds through run_exports
-        - libopenblas  # [blas_impl == "openblas"]
-        - libgomp  # [blas_impl == "openblas" and linux]
-        - vcomp14  # [blas_impl == "openblas" and (win and x86_64)]
-        - mkl  # [blas_impl == "mkl"]
-        - {{ pin_compatible('intel-openmp') }}  # [blas_impl == "mkl" and (linux or win)]
-        - llvm-openmp  # [blas_impl == "openblas" and osx]
+        - libopenblas            # [blas_impl == "openblas"]
+        - libgomp                # [blas_impl == "openblas" and linux]
+        - vcomp14                # [blas_impl == "openblas" and (win and x86_64)]
+        - mkl                    # [blas_impl == "mkl"]
+        - {{ pin_compatible('intel-openmp') }}   # [blas_impl == "mkl" and (linux or win)]
+        - llvm-openmp            # [blas_impl == "openblas" and osx]
       run_constrained:
         - faiss-cpu ==9999999999  # [cuda_compiler_version != "None"]
         - faiss-gpu ==9999999999  # [cuda_compiler_version == "None"]
         - faiss-proc =*={{ faiss_proc_type }}
+
     test:
       requires:
         - scipy
@@ -321,24 +328,37 @@ outputs:
       imports:
         - faiss
       commands:
+        {% set skip = "_not_a_real_test" %}
         # flaky double encoding test that occasionally fails
+        {% set skips = "test_RQ6x8" %}
         # two failing tests on on aarch (test_index_accuracy & test_index_accuracy2)
+        {% set skips = skips + " or (test_residual_quantizer and test_index_accuracy)" %}  # [aarch64 or ppc64le]
         # test_ivf_train_2level fails randomly on linux-64. Upstream recently increased the threshold. Tried that, but still failing occasionally.
+        {% set skips = skips + " or test_ivf_train_2level" %}  # [linux and x86_64]
         # Fast scan IVF add test has precision issues on macOS
+        {% set skips = skips + " or (TestAdd and test_add)" %}  # [osx]
         # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold
+        {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64]
         # Panorama tests have floating point precision issues on Windows (v1.14.1 new feature)
+        {% set skips = skips + " or test_flat_panorama or test_refine_panorama" %}  # [win]
         # IVFFastScan merge test has non-deterministic results on Windows
+        {% set skips = skips + " or test_merge_IVFFastScan" %}  # [win]
         # IndexFastScan merge test has non-deterministic results on Windows
+        {% set skips = skips + " or (TestMerge2 and test_merge_IndexFastScan_even_M)" %}  # [win]
         # test_hnsw has non-deterministic results on Windows (still flaky in v1.14.1)
+        {% set skips = skips + " or (TestHNSW and test_hnsw)" %}  # [win]
         # Exhaustive range search query iterator test is flaky on Windows
+        {% set skips = skips + " or test_query_iterator" %}  # [win]
         # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
         # we expect faiss will load the library with AVX2-support, see
         # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
         - export HAS_AVX2=YES && export SKIPS="({{ skips }})" && ./test-pkg.sh  # [linux and x86_64]
         - export HAS_AVX2=NO  && export SKIPS="({{ skips }})" && ./test-pkg.sh  # [osx or (linux and not x86_64)]
-        - set "HAS_AVX2=YES"  && set "SKIPS=({{ skips }})"    && test-pkg.bat  # [win]
+        - set "HAS_AVX2=YES"  && set "SKIPS=({{ skips }})"    && test-pkg.bat   # [win]
+
         # running the following test requires an actual GPU device, which is not available in CI
         # - pytest faiss/gpu/test/
+
   # for compatibility with (& ease of migration from) existing packages in the pytorch channel
   # - name: faiss-cpu
   #   build:
@@ -351,6 +371,7 @@ outputs:
   #   test:
   #     imports:
   #       - faiss
+
   # - name: faiss-gpu
   #   build:
   #     skip: true  # [cuda_compiler_version == "None"]
@@ -369,7 +390,7 @@ about:
   license: MIT
   license_family: MIT
   license_file: LICENSE
-  summary: A library for efficient similarity search and clustering of dense vectors.
+  summary: 'A library for efficient similarity search and clustering of dense vectors.'
   description: |
     Faiss is a library for efficient similarity search and clustering of dense vectors.
     It contains algorithms that search in sets of vectors of any size, up to ones that

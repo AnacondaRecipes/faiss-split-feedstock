@@ -74,6 +74,10 @@ fi
 # Tests are run separately via conda build's test phase
 BUILD_TESTING="OFF"
 
+# faiss 1.15.0 defaults FAISS_ENABLE_METAL=ON on osx-arm64; keep the Metal GPU
+# backend off: it needs Xcode's metal shader toolchain (not on CI workers) and
+# would silently change the behavior of our CPU package. Parity with 1.14.x.
+
 # Build version depending on $CF_FAISS_BUILD (either "generic" or "avx2")
 cmake -G Ninja \
     ${CMAKE_ARGS} \
@@ -84,6 +88,7 @@ cmake -G Ninja \
     -DFAISS_ENABLE_PYTHON=OFF \
     -DFAISS_ENABLE_GPU=${FAISS_ENABLE_GPU} \
     -DFAISS_ENABLE_EXTRAS=OFF \
+    -DFAISS_ENABLE_METAL=OFF \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_LIBDIR=lib \
     ${CUDA_CONFIG_ARGS+"${CUDA_CONFIG_ARGS[@]}"} \
