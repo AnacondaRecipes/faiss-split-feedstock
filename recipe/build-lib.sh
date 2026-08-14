@@ -43,7 +43,7 @@ if [[ "${blas_impl}" == "openblas" ]]; then
 fi
 
 declare -a CUDA_CONFIG_ARGS
-if [[ "${gpu_variant}" == "cuda" ]]; then
+if [[ "${gpu_variant}" == cuda* ]]; then
     # docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#building-for-maximum-compatibility
     # docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list
     # For -real vs. -virtual, see cmake.org/cmake/help/latest/prop_tgt/CUDA_ARCHITECTURES.html

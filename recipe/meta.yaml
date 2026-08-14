@@ -1,7 +1,7 @@
 {% set version = "1.15.0" %}
 {% set build_number = 0 %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
-{% set faiss_proc_type = "cuda" if gpu_variant == "cuda" else "cpu" %}
+{% set faiss_proc_type = "cuda" if gpu_variant.startswith("cuda") else "cpu" %}
 
 # CPU headers = the FAISS_HEADERS list in faiss/CMakeLists.txt at v{{ version }}
 # (all installed unconditionally on every platform); gpu/ headers come from
@@ -80,7 +80,7 @@
     'utils/simd_impl/exhaustive_L2sqr_blas_cmax.h', 'utils/simd_impl/super_kmeans_dispatch.h',
     'utils/simd_impl/super_kmeans_kernels.h', 'utils/simd_impl/IVFFlatScanner-inl.h',
     'utils/simd_impl/distances_sse-inl.h'
-] + (gpu_variant == "cuda") * [
+] + (gpu_variant.startswith("cuda")) * [
     'gpu/GpuAutoTune.h', 'gpu/GpuCloner.h', 'gpu/GpuClonerOptions.h', 'gpu/GpuDistance.h',
     'gpu/GpuFaissAssert.h', 'gpu/GpuIcmEncoder.h', 'gpu/GpuIndex.h', 'gpu/GpuIndexBinaryFlat.h',
     'gpu/GpuIndexFlat.h', 'gpu/GpuIndexIVF.h', 'gpu/GpuIndexIVFFlat.h', 'gpu/GpuIndexIVFPQ.h',
@@ -132,21 +132,21 @@ source:
     # ensure contrib.ivf_tools passes contiguous buffers to SWIG wrappers
     - patches/0013-fix-ivf-tools-range-search-preassigned.patch
     # fix MSVC template disambiguation for CUDA builds (Windows only)
-    - patches/0014-fix-MSVC-template-disambiguation.patch  # [win and gpu_variant == "cuda"]
+    - patches/0014-fix-MSVC-template-disambiguation.patch  # [win and (gpu_variant or "").startswith("cuda")]
     # fix FAISS_DISABLE_CPU_FEATURES env var parsing
     - patches/0015-fix-FAISS_DISABLE_CPU_FEATURES-parsing.patch
     # fix Windows CUDA build: 'small' macro conflict with rpcndr.h
-    - patches/0018-fix-windows-small-macro-conflict.patch  # [win and gpu_variant == "cuda"]
+    - patches/0018-fix-windows-small-macro-conflict.patch  # [win and (gpu_variant or "").startswith("cuda")]
 
 build:
-  number: {{ build_number + 100 }}  # [gpu_variant == "cuda"]
+  number: {{ build_number + 100 }}  # [(gpu_variant or "").startswith("cuda")]
   number: {{ build_number }}        # [gpu_variant == "none"]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - {{ compiler('cuda') }}  # [gpu_variant == "cuda"]
+    - {{ compiler('cuda') }}  # [(gpu_variant or "").startswith("cuda")]
     - cmake
     - ninja-base
     - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
@@ -190,10 +190,10 @@ outputs:
     script: build-lib-{{ CF_FAISS_BUILD }}.sh   # [not win]
     script: build-lib-{{ CF_FAISS_BUILD }}.bat  # [win]
     build:
-      number: {{ build_number + 100 }}  # [gpu_variant == "cuda"]
+      number: {{ build_number + 100 }}  # [(gpu_variant or "").startswith("cuda")]
       number: {{ build_number }}        # [gpu_variant == "none"]
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [gpu_variant == "none"]
-      string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [gpu_variant == "cuda"]
+      string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [(gpu_variant or "").startswith("cuda")]
       run_exports:
         # faiss follows SemVer, so restrict packages built with libfaiss to use
         # at least the same version at runtime, but below the next major version.
@@ -204,7 +204,7 @@ outputs:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}  # [gpu_variant == "cuda"]
+        - {{ compiler('cuda') }}  # [(gpu_variant or "").startswith("cuda")]
         - cmake
         - ninja-base
         - llvm-openmp  {{ cxx_compiler_version }}     # [blas_impl == "openblas" and osx]
@@ -220,11 +220,11 @@ outputs:
         - mkl {{ mkl }}                  # [blas_impl == "mkl"]
         - intel-openmp                   # [blas_impl == "mkl" and (linux or win)]
         # CUDA dependencies for GPU builds
-        - cuda-version {{ cuda_compiler_version }}  # [gpu_variant == "cuda"]
-        - cuda-cudart-dev  # [gpu_variant == "cuda"]
-        - cuda-profiler-api  # [gpu_variant == "cuda"]
-        - libcublas-dev  # [gpu_variant == "cuda"]
-        - libcurand-dev  # [gpu_variant == "cuda"]
+        - cuda-version {{ cuda_compiler_version }}  # [(gpu_variant or "").startswith("cuda")]
+        - cuda-cudart-dev {{ cuda_compiler_version }}  # [(gpu_variant or "").startswith("cuda")]
+        - cuda-profiler-api  # [(gpu_variant or "").startswith("cuda")]
+        - libcublas-dev  # [(gpu_variant or "").startswith("cuda")]
+        - libcurand-dev  # [(gpu_variant or "").startswith("cuda")]
       run:
         # Run dependencies based on variant
         - libopenblas                            # [blas_impl == "openblas"]
@@ -234,7 +234,7 @@ outputs:
         - {{ pin_compatible('intel-openmp') }}   # [blas_impl == "mkl" and (linux64 or win)]
         - llvm-openmp  # [blas_impl == "openblas" and osx]
       run_constrained:
-        - faiss-cpu ==9999999999  # [gpu_variant == "cuda"]
+        - faiss-cpu ==9999999999  # [(gpu_variant or "").startswith("cuda")]
         - faiss-gpu ==9999999999  # [gpu_variant == "none"]
         - faiss-proc =*={{ faiss_proc_type }}
 
@@ -262,15 +262,15 @@ outputs:
     script: build-pkg.sh          # [not win]
     script: build-pkg.bat         # [win]
     build:
-      number: {{ build_number + 100 }}  # [gpu_variant == "cuda"]
+      number: {{ build_number + 100 }}  # [(gpu_variant or "").startswith("cuda")]
       number: {{ build_number }}        # [gpu_variant == "none"]
       string: "py{{ PY_VER|replace(".","") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [gpu_variant == "none"]
-      string: "py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [gpu_variant == "cuda"]
+      string: "py{{ PY_VER|replace(".","") }}cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [(gpu_variant or "").startswith("cuda")]
     requirements:
       build:
         - {{ compiler('c') }}
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}  # [gpu_variant == "cuda"]
+        - {{ compiler('cuda') }}  # [(gpu_variant or "").startswith("cuda")]
         - swig
         - cmake
         - ninja-base
@@ -289,16 +289,16 @@ outputs:
         - mkl-devel {{ mkl }}     # [blas_impl == "mkl"]
         - intel-openmp            # [blas_impl == "mkl" and (linux or win)]
         # CUDA dependencies for GPU builds (needed for SWIG wrapper compilation)
-        - cuda-version {{ cuda_compiler_version }}  # [gpu_variant == "cuda"]
-        - cuda-cudart-dev  # [gpu_variant == "cuda"]
-        - libcublas-dev  # [gpu_variant == "cuda"]
+        - cuda-version {{ cuda_compiler_version }}  # [(gpu_variant or "").startswith("cuda")]
+        - cuda-cudart-dev {{ cuda_compiler_version }}  # [(gpu_variant or "").startswith("cuda")]
+        - libcublas-dev  # [(gpu_variant or "").startswith("cuda")]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
       run:
         - python
         # hard __cuda gate keeps the CUDA build (higher build number) from being
         # selected on GPU-less hosts; bare on purpose - cuda-version pins the version
-        - __cuda  # [gpu_variant == "cuda"]
+        - __cuda  # [(gpu_variant or "").startswith("cuda")]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
         - numpy >=2.0
@@ -311,7 +311,7 @@ outputs:
         - {{ pin_compatible('intel-openmp') }}   # [blas_impl == "mkl" and (linux or win)]
         - llvm-openmp            # [blas_impl == "openblas" and osx]
       run_constrained:
-        - faiss-cpu ==9999999999  # [gpu_variant == "cuda"]
+        - faiss-cpu ==9999999999  # [(gpu_variant or "").startswith("cuda")]
         - faiss-gpu ==9999999999  # [gpu_variant == "none"]
         - faiss-proc =*={{ faiss_proc_type }}
 

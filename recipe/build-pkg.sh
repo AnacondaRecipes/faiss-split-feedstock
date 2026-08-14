@@ -4,7 +4,7 @@ set -ex
 cd ${SRC_DIR}
 
 FAISS_ENABLE_GPU=""
-if [[ "${gpu_variant}" == "cuda" ]]; then
+if [[ "${gpu_variant}" == cuda* ]]; then
     FAISS_ENABLE_GPU="ON"
 else
     FAISS_ENABLE_GPU="OFF"
