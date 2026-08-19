@@ -1,5 +1,21 @@
-
+# CPU/CUDA variant axis (canonical gpu_variant pattern, cf. llama.cpp/pytorch).
+# gpu_variant is the CPU-vs-CUDA gate used by meta.yaml selectors
+# ((gpu_variant or "").startswith("cuda")) and the build scripts;
+# cuda_compiler_version still carries the toolkit version for build strings and
+# CUDA arch dispatch. The two lists are zipped 1:1; values follow llama.cpp
+# (distinct cuda-12/cuda-13). The local cuda_compiler_version list REPLACES the
+# aggregate's for this key, so it must repeat the aggregate CUDA versions
+# alongside the CPU (None) entry.
+gpu_variant:
+  - none
+  - cuda-12            # [win or linux]
+  - cuda-13            # [win or linux]
 cuda_compiler_version:
-  - None                                                                       # CPU variant - always built
+  - None
   - "12.9"             # [win or linux]
   - "13.0"             # [win or linux]
+
+zip_keys:
+  -
+    - gpu_variant
+    - cuda_compiler_version

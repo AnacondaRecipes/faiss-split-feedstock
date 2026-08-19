@@ -2,7 +2,7 @@
 
 SetLocal EnableDelayedExpansion
 
-if "%cuda_compiler_version%"=="None" (
+if "%gpu_variant%"=="none" (
     set "FAISS_ENABLE_GPU=OFF"
     set "CUDA_CONFIG_ARGS="
 ) else (
