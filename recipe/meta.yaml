@@ -1,4 +1,4 @@
-{% set version = "1.15.0" %}
+{% set version = "1.15.1" %}
 {% set build_number = 0 %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
 {% set faiss_proc_type = "cuda" if gpu_variant.startswith("cuda") else "cpu" %}
@@ -72,7 +72,7 @@
     'utils/hamming_distance/hamming_computer.h',
     'utils/hamming_distance/hamming_computer-avx2.h',
     'utils/hamming_distance/hamming_computer-avx512.h',
-    'utils/hamming_distance/hamming_computer-avx512_spr.h',
+    'utils/hamming_distance/hamming_computer-avx512_vpopcnt.h',
     'utils/hamming_distance/hamming_computer-generic.h',
     'utils/hamming_distance/hamming_computer-neon.h',
     'utils/hamming_distance/hamming_computer-rvv.h', 'utils/simd_impl/distances_autovec-inl.h',
@@ -119,7 +119,7 @@ package:
 
 source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
-  sha256: 0b94bf4b17229b28a8a6686d7637ce93de4ef25f6308040184675befad9d9332
+  sha256: 7b583010cc3c0a778b909a1beecbc5a4bd42f415d82af734b2c05d5eaaca0ffa
   patches:
     # adapt header target directory for faiss_avx2
     - patches/0002-adapt-header-target-directory-to-outputname.patch
