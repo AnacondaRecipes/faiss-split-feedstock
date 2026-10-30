@@ -2,18 +2,20 @@
 # gpu_variant is the CPU-vs-CUDA gate used by meta.yaml selectors
 # ((gpu_variant or "").startswith("cuda")) and the build scripts;
 # cuda_compiler_version still carries the toolkit version for build strings and
-# CUDA arch dispatch. The two lists are zipped 1:1; values follow llama.cpp
-# (distinct cuda-12/cuda-13). The local cuda_compiler_version list REPLACES the
-# aggregate's for this key, so it must repeat the aggregate CUDA versions
-# alongside the CPU (None) entry.
+# CUDA arch dispatch. The two lists are zipped 1:1. The local
+# cuda_compiler_version list replaces the aggregate's values for this key,
+# so it must include the supported CUDA versions for each platform.
 gpu_variant:
   - none
-  - cuda-12            # [win or linux]
-  - cuda-13            # [win or linux]
+  - cuda-12  # [linux or (win and x86_64)]
+  - cuda-13  # [linux or (win and x86_64)]
+  - cuda-13  # [win and arm64]
+
 cuda_compiler_version:
   - None
-  - "12.9"             # [win or linux]
-  - "13.0"             # [win or linux]
+  - "12.9"  # [linux or (win and x86_64)]
+  - "13.0"  # [linux or (win and x86_64)]
+  - "13.4"  # [win and arm64]
 
 zip_keys:
   -
