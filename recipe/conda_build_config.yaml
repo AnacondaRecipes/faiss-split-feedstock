@@ -18,7 +18,9 @@ cuda_compiler_version:
   - None
   - "12.9"             # [win or linux]
   - "13.0"             # [win or linux]
-
+# Temporary workaround to test NumPy variant propagation on ARM64.
+numpy:
+  - 2.3
 zip_keys:
   -
     - gpu_variant
