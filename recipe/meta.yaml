@@ -178,11 +178,15 @@ outputs:
   {% set CF_FAISS_BUILD_OPTS = ["avx2"] + CF_FAISS_BUILD_OPTS %}  # [x86_64]
   {% for CF_FAISS_BUILD in CF_FAISS_BUILD_OPTS %}
   # order libfaiss last in loop due to conda/conda-build#4090; libfaiss-avx2
-  # is only used for faiss and not important enough to work-around for this bug
+  # is only used for faiss and not important enough to work-around for this bug.
+  # The [x86_64] selector on the avx2 name line is load-bearing: conda-build maps
+  # rendered outputs to raw output-name blocks by position, so off x86_64 (where
+  # this branch never renders) the raw text must not carry the extra block, or
+  # the faiss output inherits the wrong section and loses python/numpy variants.
   {% if CF_FAISS_BUILD == "generic" %}
   - name: libfaiss
   {% else %}
-  - name: libfaiss-avx2
+  - name: libfaiss-avx2  # [x86_64]
   {% endif %}
   {% set libext = "_avx2" if CF_FAISS_BUILD == "avx2" else "" %}
     # only one main build script build-lib.{bat|sh}, with the only difference
