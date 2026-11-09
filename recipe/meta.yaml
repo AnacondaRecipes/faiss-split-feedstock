@@ -1,4 +1,4 @@
-{% set version = "1.15.0" %}
+{% set version = "1.15.1" %}
 {% set build_number = 0 %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
 {% set faiss_proc_type = "cuda" if gpu_variant.startswith("cuda") else "cpu" %}
@@ -72,7 +72,7 @@
     'utils/hamming_distance/hamming_computer.h',
     'utils/hamming_distance/hamming_computer-avx2.h',
     'utils/hamming_distance/hamming_computer-avx512.h',
-    'utils/hamming_distance/hamming_computer-avx512_spr.h',
+    'utils/hamming_distance/hamming_computer-avx512_vpopcnt.h',
     'utils/hamming_distance/hamming_computer-generic.h',
     'utils/hamming_distance/hamming_computer-neon.h',
     'utils/hamming_distance/hamming_computer-rvv.h', 'utils/simd_impl/distances_autovec-inl.h',
@@ -119,7 +119,7 @@ package:
 
 source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
-  sha256: 0b94bf4b17229b28a8a6686d7637ce93de4ef25f6308040184675befad9d9332
+  sha256: 7b583010cc3c0a778b909a1beecbc5a4bd42f415d82af734b2c05d5eaaca0ffa
   patches:
     # adapt header target directory for faiss_avx2
     - patches/0002-adapt-header-target-directory-to-outputname.patch
@@ -178,11 +178,15 @@ outputs:
   {% set CF_FAISS_BUILD_OPTS = ["avx2"] + CF_FAISS_BUILD_OPTS %}  # [x86_64]
   {% for CF_FAISS_BUILD in CF_FAISS_BUILD_OPTS %}
   # order libfaiss last in loop due to conda/conda-build#4090; libfaiss-avx2
-  # is only used for faiss and not important enough to work-around for this bug
+  # is only used for faiss and not important enough to work-around for this bug.
+  # The [x86_64] selector on the avx2 name line is load-bearing: conda-build maps
+  # rendered outputs to raw output-name blocks by position, so off x86_64 (where
+  # this branch never renders) the raw text must not carry the extra block, or
+  # the faiss output inherits the wrong section and loses python/numpy variants.
   {% if CF_FAISS_BUILD == "generic" %}
   - name: libfaiss
   {% else %}
-  - name: libfaiss-avx2
+  - name: libfaiss-avx2  # [x86_64]
   {% endif %}
   {% set libext = "_avx2" if CF_FAISS_BUILD == "avx2" else "" %}
     # only one main build script build-lib.{bat|sh}, with the only difference

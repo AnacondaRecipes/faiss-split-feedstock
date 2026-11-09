@@ -6,6 +6,10 @@
 # (distinct cuda-12/cuda-13). The local cuda_compiler_version list REPLACES the
 # aggregate's for this key, so it must repeat the aggregate CUDA versions
 # alongside the CPU (None) entry.
+
+# Windows ARM64 CUDA builds currently fail during dependency resolution:
+# cuda-nvcc_win-arm64 12.9 and 13.0 are unavailable in CI channels.
+# Keep these variants enabled so they can be retried when dependencies become available.
 gpu_variant:
   - none
   - cuda-12            # [win or linux]
