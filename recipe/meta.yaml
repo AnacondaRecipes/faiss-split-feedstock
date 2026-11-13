@@ -1,4 +1,4 @@
-{% set version = "1.15.0" %}
+{% set version = "1.15.1" %}
 {% set build_number = 0 %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
 {% set faiss_proc_type = "cuda" if gpu_variant.startswith("cuda") else "cpu" %}
@@ -72,7 +72,7 @@
     'utils/hamming_distance/hamming_computer.h',
     'utils/hamming_distance/hamming_computer-avx2.h',
     'utils/hamming_distance/hamming_computer-avx512.h',
-    'utils/hamming_distance/hamming_computer-avx512_spr.h',
+    'utils/hamming_distance/hamming_computer-avx512_vpopcnt.h',
     'utils/hamming_distance/hamming_computer-generic.h',
     'utils/hamming_distance/hamming_computer-neon.h',
     'utils/hamming_distance/hamming_computer-rvv.h', 'utils/simd_impl/distances_autovec-inl.h',
@@ -119,7 +119,7 @@ package:
 
 source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
-  sha256: 0b94bf4b17229b28a8a6686d7637ce93de4ef25f6308040184675befad9d9332
+  sha256: 7b583010cc3c0a778b909a1beecbc5a4bd42f415d82af734b2c05d5eaaca0ffa
   patches:
     # adapt header target directory for faiss_avx2
     - patches/0002-adapt-header-target-directory-to-outputname.patch
@@ -175,10 +175,10 @@ outputs:
 
   # build two separate C++ libs, one generic, and one for AVX2 on x86_64
   {% set CF_FAISS_BUILD_OPTS = ["generic"] %}
-  {% set CF_FAISS_BUILD_OPTS = ["avx2"] + CF_FAISS_BUILD_OPTS %}  # [x86_64]
+  {% set CF_FAISS_BUILD_OPTS = ["avx2"] + CF_FAISS_BUILD_OPTS %}
   {% for CF_FAISS_BUILD in CF_FAISS_BUILD_OPTS %}
-  # order libfaiss last in loop due to conda/conda-build#4090; libfaiss-avx2
-  # is only used for faiss and not important enough to work-around for this bug
+  # Keep both outputs in the Jinja loop to avoid incorrect output mapping
+  # in conda-build (conda/conda-build#4090). Skip AVX2 on non-x86_64.
   {% if CF_FAISS_BUILD == "generic" %}
   - name: libfaiss
   {% else %}
@@ -194,6 +194,9 @@ outputs:
       number: {{ build_number }}        # [gpu_variant == "none"]
       string: "h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"                                                  # [gpu_variant == "none"]
       string: "cuda{{ cuda_compiler_version|replace(".", "") }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}_{{ faiss_proc_type }}"  # [(gpu_variant or "").startswith("cuda")]
+      {% if libext %}
+      skip: true  # [not x86_64]
+      {% endif %}
       run_exports:
         # faiss follows SemVer, so restrict packages built with libfaiss to use
         # at least the same version at runtime, but below the next major version.
@@ -349,12 +352,12 @@ outputs:
         {% set skips = skips + " or (TestHNSW and test_hnsw)" %}  # [win]
         # Exhaustive range search query iterator test is flaky on Windows
         {% set skips = skips + " or test_query_iterator" %}  # [win]
-        # the linux & windows CI agents support AVX2 (OSX doesn't yet), so by default,
-        # we expect faiss will load the library with AVX2-support, see
-        # https://github.com/facebookresearch/faiss/blob/v1.7.1/faiss/python/loader.py#L52-L66
+        # Expect AVX2 loading on Linux/Windows x86_64.
+        # Other architectures use the generic Faiss extension.
         - export HAS_AVX2=YES && export SKIPS="({{ skips }})" && ./test-pkg.sh  # [linux and x86_64]
         - export HAS_AVX2=NO  && export SKIPS="({{ skips }})" && ./test-pkg.sh  # [osx or (linux and not x86_64)]
-        - set "HAS_AVX2=YES"  && set "SKIPS=({{ skips }})"    && test-pkg.bat   # [win]
+        - set "HAS_AVX2=YES" && set "SKIPS=({{ skips }})" && test-pkg.bat  # [win and x86_64]
+        - set "HAS_AVX2=NO" && set "SKIPS=({{ skips }})" && test-pkg.bat   # [win and arm64]
 
         # running the following test requires an actual GPU device, which is not available in CI
         # - pytest faiss/gpu/test/

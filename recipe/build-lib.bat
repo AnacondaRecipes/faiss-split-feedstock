@@ -27,6 +27,12 @@ if "%gpu_variant%"=="none" (
     set "CUDAFLAGS=-w"
 
     set CUDA_CONFIG_ARGS=-DCMAKE_CUDA_ARCHITECTURES=!CMAKE_CUDA_ARCHS!
+
+    REM CUDA 13.4 CCCL requires the conforming MSVC preprocessor on Windows ARM64.
+    if /I "%target_platform%"=="win-arm64" (
+        set "CUDA_CONFIG_ARGS=!CUDA_CONFIG_ARGS! -DCMAKE_CUDA_FLAGS=-Xcompiler=/Zc:preprocessor"
+    )
+
     echo CUDA architectures: !CMAKE_CUDA_ARCHS!
 )
 
