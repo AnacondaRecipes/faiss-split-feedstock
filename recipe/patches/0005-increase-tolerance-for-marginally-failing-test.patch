@@ -3,20 +3,22 @@ From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Sat, 5 Jun 2021 01:45:14 +0200
 Subject: [PATCH 05/11] increase tolerance for marginally failing test
 
+Refreshed for FAISS v1.16.0.
+
 ---
  tests/test_residual_quantizer.py | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tests/test_residual_quantizer.py b/tests/test_residual_quantizer.py
-index a7752baf..090354aa 100644
+index 83b15ca..12b999e 100644
 --- a/tests/test_residual_quantizer.py
 +++ b/tests/test_residual_quantizer.py
-@@ -682,7 +682,7 @@ class TestAdditiveQuantizerWithLUT(unittest.TestCase):
+@@ -572,7 +572,7 @@ class TestAdditiveQuantizerWithLUT(unittest.TestCase):
          norms = np.zeros(1 << aq.tot_bits, dtype="float32")
          aq.compute_centroid_norms(sp(norms))
  
 -        np.testing.assert_array_almost_equal(norms, norms_ref, decimal=5)
 +        np.testing.assert_array_almost_equal(norms, norms_ref, decimal=4)
  
-         # test IP search
+         Dref, Iref = faiss.knn(xq, cents, 10, metric=faiss.METRIC_INNER_PRODUCT)
  

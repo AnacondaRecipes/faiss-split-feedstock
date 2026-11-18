@@ -3,15 +3,17 @@ From: "H. Vetinari" <h.vetinari@gmx.com>
 Date: Wed, 2 Jun 2021 22:58:19 +0200
 Subject: [PATCH 04/11] enable building libfaiss_avx2 without libfaiss
 
+Refreshed for FAISS v1.16.0.
+
 ---
  faiss/CMakeLists.txt | 19 +++++++++++--------
  1 file changed, 11 insertions(+), 8 deletions(-)
 
 diff --git a/faiss/CMakeLists.txt b/faiss/CMakeLists.txt
-index 72e063ab..dccf5e95 100644
+index cb8672c..4477733 100644
 --- a/faiss/CMakeLists.txt
 +++ b/faiss/CMakeLists.txt
-@@ -293,18 +293,21 @@ else()
+@@ -832,18 +832,21 @@ else()
    get_target_property(libname faiss OUTPUT_NAME)
  endif()
  
@@ -40,4 +42,4 @@ index 72e063ab..dccf5e95 100644
 +    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
    )
  endif()
- 
+ if(FAISS_OPT_LEVEL STREQUAL "avx512")

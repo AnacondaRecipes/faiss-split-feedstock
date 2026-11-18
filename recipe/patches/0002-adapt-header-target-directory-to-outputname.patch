@@ -5,6 +5,8 @@ Subject: [PATCH] adapt header target directory to outputname
 
 Regenerated for FAISS v1.12.0 from conda-forge patch.
 
+Refreshed for FAISS v1.16.0.
+
 This patch ensures that when building the AVX2 variant (FAISS_OPT_LEVEL=avx2),
 headers are installed to include/faiss_avx2/ instead of include/faiss/.
 This allows both libfaiss and libfaiss-avx2 to be installed simultaneously
@@ -17,19 +19,19 @@ Changes:
 - Install headers to ${libname}/ directory instead of hardcoded /faiss/
 - Install GPU headers to ${libname}/gpu/ instead of hardcoded /faiss/gpu/
 ---
- faiss/CMakeLists.txt     | 26 +++++++++++++++++++++++---
+ faiss/CMakeLists.txt     | 22 +++++++++++++++++++---
  faiss/gpu/CMakeLists.txt | 10 +++++++++-
- 2 files changed, 32 insertions(+), 4 deletions(-)
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
---- faiss-1.12.0-orig/faiss/CMakeLists.txt	2025-11-13 09:46:51.020079190 -0600
-+++ faiss-1.12.0/faiss/CMakeLists.txt	2025-11-13 12:36:12.370361983 -0600
-@@ -250,8 +250,17 @@
- set(FAISS_HEADERS ${FAISS_HEADERS} PARENT_SCOPE)
-
+--- faiss-1.16.0-orig/faiss/CMakeLists.txt	2026-11-18 10:55:33.427033267 +0100
++++ faiss-1.16.0/faiss/CMakeLists.txt	2026-11-18 10:55:33.449311719 +0100
+@@ -484,8 +484,17 @@
+ endif()
+ 
  add_library(faiss ${FAISS_SRC})
 +set_target_properties(faiss PROPERTIES OUTPUT_NAME "faiss")
 +
-
+ 
  add_library(faiss_avx2 ${FAISS_SRC})
 +set_target_properties(faiss_avx2 PROPERTIES OUTPUT_NAME "faiss_avx2")
 +
@@ -41,10 +43,10 @@ Changes:
  if(NOT FAISS_OPT_LEVEL STREQUAL "avx2" AND NOT FAISS_OPT_LEVEL STREQUAL "avx512" AND NOT FAISS_OPT_LEVEL STREQUAL "avx512_spr")
    set_target_properties(faiss_avx2 PROPERTIES EXCLUDE_FROM_ALL TRUE)
  endif()
-@@ -408,6 +417,13 @@
+@@ -816,6 +825,13 @@
    target_link_libraries(faiss_sve PRIVATE ${LAPACK_LIBRARIES})
  endif()
-
+ 
 +# to distinguish between faiss and faiss_avx2
 +if(FAISS_OPT_LEVEL STREQUAL "avx2")
 +  get_target_property(libname faiss_avx2 OUTPUT_NAME)
@@ -55,7 +57,7 @@ Changes:
  install(TARGETS faiss
    EXPORT faiss-targets
    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-@@ -447,7 +463,7 @@
+@@ -857,7 +873,7 @@
  foreach(header ${FAISS_HEADERS})
    get_filename_component(dir ${header} DIRECTORY )
    install(FILES ${header}
@@ -63,25 +65,25 @@ Changes:
 +    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${libname}/${dir}
    )
  endforeach()
-
-@@ -464,9 +480,9 @@
+ 
+@@ -874,9 +890,9 @@
  )
  install(FILES ${PROJECT_BINARY_DIR}/cmake/faiss-config.cmake
    ${PROJECT_BINARY_DIR}/cmake/faiss-config-version.cmake
 -  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/faiss
 +  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${libname}
  )
-
+ 
  install(EXPORT faiss-targets
 -  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/faiss
 +  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${libname}
  )
---- faiss-1.12.0-orig/faiss/gpu/CMakeLists.txt	2025-11-13 09:46:50.983064754 -0600
-+++ faiss-1.12.0/faiss/gpu/CMakeLists.txt	2025-11-13 12:36:42.473011149 -0600
-@@ -330,12 +330,20 @@
+--- faiss-1.16.0-orig/faiss/gpu/CMakeLists.txt	2026-11-18 10:55:33.437329908 +0100
++++ faiss-1.16.0/faiss/gpu/CMakeLists.txt	2026-11-18 10:55:33.460064058 +0100
+@@ -335,12 +335,20 @@
  target_link_libraries(faiss_avx512_spr PRIVATE faiss_gpu_objs)
  target_link_libraries(faiss_sve PRIVATE faiss_gpu_objs)
-
+ 
 +
 +# to distinguish between faiss and faiss_avx2
 +if(FAISS_OPT_LEVEL STREQUAL "avx2")
@@ -91,7 +93,7 @@ Changes:
 +endif()
 +
  install(TARGETS faiss_gpu_objs EXPORT faiss-targets)
-
+ 
  foreach(header ${FAISS_GPU_HEADERS})
    get_filename_component(dir ${header} DIRECTORY )
    install(FILES ${header}
@@ -99,4 +101,4 @@ Changes:
 +    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${libname}/gpu/${dir}
    )
  endforeach()
-
+ 

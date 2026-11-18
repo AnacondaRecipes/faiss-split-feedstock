@@ -1,4 +1,4 @@
-{% set version = "1.15.1" %}
+{% set version = "1.16.0" %}
 {% set build_number = 0 %}
 # see github.com/conda-forge/conda-forge.github.io/issues/1059 for naming discussion
 {% set faiss_proc_type = "cuda" if gpu_variant.startswith("cuda") else "cpu" %}
@@ -16,9 +16,10 @@
     'IndexIVFAdditiveQuantizerFastScan.h', 'IndexIVFPQFastScan.h', 'IndexIVFPQR.h',
     'IndexIVFRaBitQ.h', 'IndexIVFRaBitQFastScan.h', 'IndexIVFSpectralHash.h', 'IndexLSH.h',
     'IndexNeuralNetCodec.h', 'IndexLattice.h', 'IndexNNDescent.h', 'IndexNSG.h', 'IndexPQ.h',
-    'IndexFastScan.h', 'IndexAdditiveQuantizerFastScan.h', 'IndexPQFastScan.h',
+    'IndexFastScan.h', 'IndexAdditiveQuantizerFastScan.h', 'IndexPQFastScan.h', 'IndexPiPNN.h',
     'IndexPreTransform.h', 'IndexRefine.h', 'IndexReplicas.h', 'IndexRaBitQ.h',
-    'IndexRaBitQFastScan.h', 'IndexRowwiseMinMax.h', 'IndexScalarQuantizer.h', 'IndexShards.h',
+    'IndexRaBitQFastScan.h', 'IndexRowwiseMinMax.h', 'IndexSQFastScan.h', 'IndexIVFSQFastScan.h',
+    'IndexScalarQuantizer.h', 'IndexShards.h',
     'IndexShardsIVF.h', 'MatrixStats.h', 'MetaIndexes.h', 'MetricType.h', 'VectorTransform.h',
     'clone_index.h', 'index_factory.h', 'factory_tools.h', 'index_io.h', 'impl/AdSampling.h',
     'impl/AdditiveQuantizer.h', 'impl/AuxIndexStructures.h', 'impl/InvertedListScannerStats.h',
@@ -29,20 +30,25 @@
     'impl/hnsw/MinimaxHeap.h', 'impl/LocalSearchQuantizer.h',
     'impl/ProductAdditiveQuantizer.h', 'impl/fast_scan/LookupTableScaler.h',
     'impl/fast_scan/FastScanDistancePostProcessing.h', 'impl/maybe_owned_vector.h',
-    'impl/NNDescent.h', 'impl/NSG.h', 'impl/Panorama.h', 'impl/PanoramaStats.h',
-    'impl/PdxLayout.h', 'impl/PolysemousTraining.h', 'impl/polysemous_training/dispatch.h',
+    'impl/NNDescent.h', 'impl/NSG.h', 'impl/pipnn/HashPrune.h',
+    'impl/pipnn/Partition.h', 'impl/pipnn/kernels.h', 'impl/Panorama.h', 'impl/PanoramaStats.h',
+    'impl/PdxLayout.h', 'impl/PiPNN.h', 'impl/PolysemousTraining.h', 'impl/polysemous_training/dispatch.h',    
     'impl/ProductQuantizer-inl.h', 'impl/ProductQuantizer.h', 'impl/Quantizer.h',
     'impl/RaBitQuantizer.h', 'impl/RaBitQuantizerMultiBit.h', 'impl/RaBitQUtils.h',
     'impl/ResidualQuantizer.h', 'impl/ResultHandler.h', 'impl/ScalarQuantizer.h',
     'impl/expanded_scanners.h', 'impl/scalar_quantizer/codecs.h',
     'impl/scalar_quantizer/distance_computers.h', 'impl/scalar_quantizer/quantizers.h',
     'impl/scalar_quantizer/scanners.h', 'impl/scalar_quantizer/similarities.h',
+    'impl/pq_code_distance/pq_rvv_kernel.h', 'impl/scalar_quantizer/sq8_coefficients.h',
+    'impl/scalar_quantizer/sq8_rvv_kernel.h', 'utils/simd_impl/distances_rvv_kernel.h',
+    'impl/scalar_quantizer/sq-dispatch.h', 'impl/scalar_quantizer/training.h',
     'impl/scalar_quantizer/sq-dispatch.h', 'impl/scalar_quantizer/training.h',
     'impl/ThreadedIndex-inl.h', 'impl/ThreadedIndex.h', 'impl/index_read_utils.h', 'impl/io.h',
     'impl/io_macros.h', 'impl/mapped_io.h', 'impl/kmeans1d.h', 'impl/lattice_Zn.h',
     'impl/platform_macros.h', 'impl/fast_scan/accumulate_loops.h',
     'impl/fast_scan/accumulate_loops_512.h', 'impl/fast_scan/dispatching.h',
     'impl/fast_scan/fast_scan.h', 'impl/fast_scan/decompose_qbs.h',
+    'impl/fast_scan/kernels_neon.h', 'impl/fast_scan/kernels_simd256.h', 'impl/fast_scan/kernels_simd512.h',
     'impl/fast_scan/kernels_simd256.h', 'impl/fast_scan/kernels_simd512.h',
     'impl/fast_scan/rabitq_dispatching.h', 'impl/fast_scan/rabitq_result_handler.h',
     'impl/residual_quantizer_encode_steps.h', 'impl/simd_dispatch.h',
@@ -58,7 +64,7 @@
     'utils/NeuralNet.h', 'utils/WorkerThread.h', 'utils/distances.h',
     'utils/extra_distances.h', 'utils/fp16-fp16c.h', 'utils/fp16-inl.h', 'utils/fp16-arm.h',
     'utils/fp16.h', 'utils/hamming-inl.h', 'utils/hamming.h', 'utils/ordered_key_value.h',
-    'utils/partitioning.h', 'utils/prefetch.h', 'utils/quantize_lut.h', 'utils/rabitq_simd.h',
+    'utils/partitioning.h', 'utils/popcount.h', 'utils/prefetch.h', 'utils/quantize_lut.h', 'utils/rabitq_simd.h',
     'utils/random.h', 'utils/sorting.h', 'impl/simdlib/simdlib.h',
     'impl/simdlib/simdlib_dispatch.h', 'impl/simdlib/simdlib_avx2.h',
     'impl/simdlib/simdlib_avx512.h', 'impl/simdlib/simdlib_emulated.h',
@@ -77,8 +83,11 @@
     'utils/hamming_distance/hamming_computer-neon.h',
     'utils/hamming_distance/hamming_computer-rvv.h', 'utils/simd_impl/distances_autovec-inl.h',
     'utils/simd_impl/distances_simdlib256.h', 'utils/hamming_distance/hamming_impl.h',
-    'utils/simd_impl/exhaustive_L2sqr_blas_cmax.h', 'utils/simd_impl/super_kmeans_dispatch.h',
+    'utils/simd_impl/exhaustive_L2sqr_blas_cmax.h', 'utils/simd_impl/fp16_kernels.h',
+    'utils/simd_impl/super_kmeans_dispatch.h',
     'utils/simd_impl/super_kmeans_kernels.h', 'utils/simd_impl/IVFFlatScanner-inl.h',
+    'utils/simd_impl/masked_sum.h', 'utils/simd_impl/masked_sum-avx2.h',
+    'utils/simd_impl/masked_sum-avx512.h',
     'utils/simd_impl/distances_sse-inl.h'
 ] + (gpu_variant.startswith("cuda")) * [
     'gpu/GpuAutoTune.h', 'gpu/GpuCloner.h', 'gpu/GpuClonerOptions.h', 'gpu/GpuDistance.h',
@@ -119,7 +128,7 @@ package:
 
 source:
   url: https://github.com/facebookresearch/faiss/archive/v{{ version }}.tar.gz
-  sha256: 7b583010cc3c0a778b909a1beecbc5a4bd42f415d82af734b2c05d5eaaca0ffa
+  sha256: 4bef4f97e7e0a88c150f6c85897bdda411dd875522e7bf601ad27dfe6f55179d
   patches:
     # adapt header target directory for faiss_avx2
     - patches/0002-adapt-header-target-directory-to-outputname.patch
@@ -185,6 +194,7 @@ outputs:
   - name: libfaiss-avx2
   {% endif %}
   {% set libext = "_avx2" if CF_FAISS_BUILD == "avx2" else "" %}
+  {% set libname = "libfaiss-avx2" if CF_FAISS_BUILD == "avx2" else "libfaiss" %}
     # only one main build script build-lib.{bat|sh}, with the only difference
     # through CF_FAISS_BUILD={generic,avx2} that's set in the wrappers
     script: build-lib-{{ CF_FAISS_BUILD }}.sh   # [not win]
@@ -198,11 +208,11 @@ outputs:
       skip: true  # [not x86_64]
       {% endif %}
       run_exports:
-        # faiss follows SemVer, so restrict packages built with libfaiss to use
-        # at least the same version at runtime, but below the next major version.
-        - libfaiss{{ libext }} >={{ version }},<2
-        # additionally, we need to ensure matching proc-type
-        - libfaiss{{ libext }} =*=*_{{ faiss_proc_type }}
+        # Pin to the current minor version because C++ ABI compatibility
+        # is not guaranteed across minor releases.
+        - {{ pin_subpackage(libname, max_pin='x.x') }}
+        # Ensure matching CPU/CUDA variant.
+        - {{ libname }} =*=*_{{ faiss_proc_type }}
     requirements:
       build:
         - {{ compiler('c') }}
@@ -304,7 +314,7 @@ outputs:
         - __cuda  # [(gpu_variant or "").startswith("cuda")]
         - libfaiss ={{ version }}=*_{{ faiss_proc_type }}
         - libfaiss-avx2 ={{ version }}=*_{{ faiss_proc_type }}  # [x86_64]
-        - numpy >=2.0
+        - numpy >=2.0,<3.0
         - packaging
         # bounds through run_exports
         - libopenblas            # [blas_impl == "openblas"]
@@ -329,6 +339,7 @@ outputs:
         - tests/
       imports:
         - faiss
+        - faiss.contrib.e_means
       commands:
         {% set skip = "_not_a_real_test" %}
         # flaky double encoding test that occasionally fails
@@ -339,11 +350,9 @@ outputs:
         {% set skips = skips + " or test_ivf_train_2level" %}  # [linux and x86_64]
         # Fast scan IVF add test has precision issues on macOS
         {% set skips = skips + " or (TestAdd and test_add)" %}  # [osx]
-        # Speed tests on aarch64 and arm64 ocassionally take a bit longer than threshold
-        {% set skips = skips + " or test_PQ4_speed" %}  # [aarch64 or arm64]
         # Panorama tests have floating point/statistical precision issues on Windows;
         # test_panorama_stats' scan-ratio monotonicity heuristic failed 2/2 runs (graph 0c6c9f52)
-        {% set skips = skips + " or test_flat_panorama or test_refine_panorama or test_panorama_stats" %}  # [win]
+        {% set skips = skips + " or test_refine_panorama_correctness or test_panorama_stats" %}  # [win]
         # IVFFastScan merge test has non-deterministic results on Windows
         {% set skips = skips + " or test_merge_IVFFastScan" %}  # [win]
         # IndexFastScan merge test has non-deterministic results on Windows

@@ -6,7 +6,7 @@ set -ex
 rm -f tests/external_module_test.py
 
 if [[ ${HAS_AVX2} == "YES" ]]; then
-    python -c "from numpy.core._multiarray_umath import __cpu_features__; print(f'Testing version with AVX2-support - ' + str(__cpu_features__['AVX2']))"
+    python -c "from numpy.core._multiarray_umath import __cpu_features__; print(f'Testing version with AVX2-support - ' + str(__cpu_features__.get('AVX2', False)))"
     pytest tests --log-file-level=INFO --log-file=log.txt -k "not $SKIPS"
     # print logfile for completeness (sleep so log has time to print)
     cat log.txt && sleep 2
@@ -21,7 +21,7 @@ fi
 export NPY_DISABLE_CPU_FEATURES=AVX2
 export FAISS_DISABLE_CPU_FEATURES=AVX2,AVX512,AVX512_SPR
 
-python -c "from numpy.core._multiarray_umath import __cpu_features__; print(f'Testing version with AVX2-support - ' + str(__cpu_features__['AVX2']))"
+python -c "from numpy.core._multiarray_umath import __cpu_features__; print(f'Testing version with AVX2-support - ' + str(__cpu_features__.get('AVX2', False)))"
 # rerun test suite again without AVX2 support
 pytest tests --log-file-level=INFO --log-file=log.txt -k "not $SKIPS"
 cat log.txt && sleep 2
