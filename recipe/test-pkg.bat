@@ -8,7 +8,7 @@ if exist tests\external_module_test.py del tests\external_module_test.py
 :: Windows x86_64 builds include AVX2 support.
 :: Windows ARM64 builds use the generic Faiss extension.
 
-python -c "from numpy.core._multiarray_umath import __cpu_features__; print('AVX2 CPU feature available: ' + str(__cpu_features__['AVX2']))"
+python -c "from numpy.core._multiarray_umath import __cpu_features__; print('AVX2 CPU feature available: ' + str(__cpu_features__.get('AVX2', False)))"
 pytest tests --log-file-level=INFO --log-file=log.txt -k "not %SKIPS%"
 if %ERRORLEVEL% neq 0 exit 1
 :: print logfile for completeness
