@@ -10,50 +10,51 @@ headers, 'bool small = ...' expands to 'bool char = ...' causing
 the macro conflict.
 
 ---
- faiss/gpu/utils/MergeNetworkWarp.cuh | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/faiss/gpu/utils/MergeNetworkWarp.cuh b/faiss/gpu/utils/MergeNetworkWarp.cuh
+index c4a385f..9584d87 100644
 --- a/faiss/gpu/utils/MergeNetworkWarp.cuh
 +++ b/faiss/gpu/utils/MergeNetworkWarp.cuh
-@@ -105,18 +105,18 @@
+@@ -105,19 +105,19 @@ inline __device__ void warpBitonicMergeLE16(K& k, V& v) {
          V otherV = shfl_xor(v, 2 * L - 1);
-
+ 
          // Whether we are the lesser thread in the exchange
 -        bool small = !(laneId & L);
 +        bool isSmall = !(laneId & L);
-
+ 
          if (Dir) {
              // See the comment above how performing both of these
              // comparisons in the warp seems to win out over the
              // alternatives in practice
--            bool s = small ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
-+            bool s = isSmall ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
+-            bool s = small ? Comp::gt(k, v, otherK, otherV)
++            bool s = isSmall ? Comp::gt(k, v, otherK, otherV)
+                            : Comp::lt(k, v, otherK, otherV);
              assign(s, k, otherK);
              assign(s, v, otherV);
-
+ 
          } else {
--            bool s = small ? Comp::lt(k, otherK) : Comp::gt(k, otherK);
-+            bool s = isSmall ? Comp::lt(k, otherK) : Comp::gt(k, otherK);
+-            bool s = small ? Comp::lt(k, v, otherK, otherV)
++            bool s = isSmall? Comp::lt(k, v, otherK, otherV)
+                            : Comp::gt(k, v, otherK, otherV);
              assign(s, k, otherK);
              assign(s, v, otherV);
-         }
-@@ -129,14 +129,14 @@
+@@ -130,16 +130,16 @@ inline __device__ void warpBitonicMergeLE16(K& k, V& v) {
          V otherV = shfl_xor(v, stride);
-
+ 
          // Whether we are the lesser thread in the exchange
 -        bool small = !(laneId & stride);
 +        bool isSmall = !(laneId & stride);
-
+ 
          if (Dir) {
--            bool s = small ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
-+            bool s = isSmall ? Comp::gt(k, otherK) : Comp::lt(k, otherK);
+-            bool s = small ? Comp::gt(k, v, otherK, otherV)
++            bool s = isSmall? Comp::gt(k, v, otherK, otherV)
+                            : Comp::lt(k, v, otherK, otherV);
              assign(s, k, otherK);
              assign(s, v, otherV);
-
+ 
          } else {
--            bool s = small ? Comp::lt(k, otherK) : Comp::gt(k, otherK);
-+            bool s = isSmall ? Comp::lt(k, otherK) : Comp::gt(k, otherK);
+-            bool s = small ? Comp::lt(k, v, otherK, otherV)
++            bool s = isSmall? Comp::lt(k, v, otherK, otherV)
+                            : Comp::gt(k, v, otherK, otherV);
              assign(s, k, otherK);
              assign(s, v, otherV);
-         }
